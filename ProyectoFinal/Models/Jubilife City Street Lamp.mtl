@@ -1,0 +1,16 @@
+newmtl c1_o02
+Ka 0.7843137 0.7843137 0.7843137
+Kd 0.7843137 0.7843137 0.7843137
+d 1
+Tr 1
+map_Ka c1_o02.png
+map_Kd c1_o02.png
+map_d c1_o02.png
+newmtl light
+Ka 0.972549 0.972549 0.972549
+Kd 0.7843137 0.7843137 0.7843137
+d 1
+Tr 1
+map_Ka light.png
+map_Kd light.png
+map_d light.png
