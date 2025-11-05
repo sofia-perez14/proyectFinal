@@ -269,10 +269,10 @@ int main()
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
         // ======================
- // Carga de modelos (TRS)
- // ======================
+         // Carga de modelos (TRS)
+         // ======================
 
- // --- Sala 1: Arcade roja (izquierda) ---
+        // --- Sala 1: Arcade roja (izquierda) ---
         {
             glm::mat4 modelArc1(1.0f);
             modelArc1 = glm::translate(modelArc1, glm::vec3(-3.0f, 0.0f, -3.0f)); // separada a la izquierda
@@ -293,7 +293,8 @@ int main()
         }
 
 
-        // --- Sala 2:  ---
+        //---sala 2
+
 
 
         // --- Sala 3: Guerrero (centro al frente) ---
