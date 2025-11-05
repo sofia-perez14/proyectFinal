@@ -145,6 +145,7 @@ int main() {
     Model arc3((char*)"Models/Super_Famicom_Console_1105070442_texture.obj");
     Model arc4((char*)"Models/GameBoy_1105065316_texture.obj");
     Model arc5((char*)"Models/Atari_Console_Classic_1105064245_texture.obj");
+    Model vr((char*)"Models/sala3/VR_headset_with_two_m_1105231651_texture.obj");
 
     // FBX con huesos
     Model warrior((char*)"Models/sala3/Animation_Walking_withSkin.fbx");
@@ -209,6 +210,17 @@ int main() {
         {
             glm::mat4 m(1); m = glm::translate(m, { -2.3f,0.3f,1.0f });
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m)); arc5.Draw(lightingShader);
+        }
+
+        // ====== VR ADELANTE DE LA CÁMARA (z negativa) ======
+        {
+            glm::mat4 m(1.0f);
+            // La cámara está en z=+3 y mira a -Z, así que objetos con z negativa están delante
+            m = glm::translate(m, glm::vec3(0.0f, 0.15f, 6.0f)); // z NEGATIVA -> visible
+            m = glm::rotate(m, glm::radians(180.0f), glm::vec3(0, 1, 0)); // orientado hacia la cámara
+            m = glm::scale(m, glm::vec3(20.22f)); // ajusta tamaño si hace falta
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            vr.Draw(lightingShader);
         }
 
         // Guerrero skinned
