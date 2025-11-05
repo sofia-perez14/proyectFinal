@@ -1,7 +1,13 @@
-// Previo 11. Animacion por maquina de estados
-// Nombre: Pérez Ortiz Sofia
-// No. de cuenta: 319074806
-// Fecha de entrega: 2 de noviembre de 2025
+// Proyecto final. Galeria de videojuegos
+// Nombre de los integrantes: 
+// 
+// 
+// Pérez Ortiz Sofia
+// No. de cuentas: 
+// 
+// 
+// 319074806
+// Fecha de entrega: 19 de noviembre de 2025
 
 #include <iostream>
 #include <cmath>
@@ -175,17 +181,14 @@ int main()
 	Shader lightingShader("Shader/lighting.vs", "Shader/lighting.frag");
 	Shader lampShader("Shader/lamp.vs", "Shader/lamp.frag");
 
-	//models
+	// modelos
 	// Sala 1
 	Model arc1((char*)"Models/arcade_machine.obj"); //Primeros modelos
-	//Model HeadDog((char*)"Models/HeadDog.obj"); //Cabeza del perrito
-	//Model DogTail((char*)"Models/TailDog.obj"); //Cola del perrito
-	//Model F_RightLeg((char*)"Models/F_RightLegDog.obj"); // Pata del perrito frontal derecha
-	//Model F_LeftLeg((char*)"Models/F_LeftLegDog.obj"); // Pata del perrito frontal izquierda
-	//Model B_RightLeg((char*)"Models/B_RightLegDog.obj"); //	Pata del perrito trasera derecha
-	//Model B_LeftLeg((char*)"Models/B_LeftLegDog.obj"); // Pata del perrito trasera izquierda
-	//Model Piso((char*)"Models/piso.obj"); // Piso
-	//Model Ball((char*)"Models/ball.obj"); // Pelota
+	Model arc2((char*)"Models/game_machine_0000001.obj");
+	
+	// Sala 2
+
+	// Sala 3
 
 
 
@@ -305,73 +308,23 @@ int main()
 
 		//Carga de modelos
 
-		/*view = camera.GetViewMatrix();
-		model = glm::mat4(1);
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		Piso.Draw(lightingShader);*/
+		// Sala 1
 
-		glm::mat4 modelFondo(1);
-		modelFondo = glm::scale(modelFondo, glm::vec3(2.0f));     // lo escalamos para hacerlo más grande
-		modelFondo = glm::translate(modelFondo, glm::vec3(0.2f, 0.01f, -1.3f)); // alejar el fondo
-		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelFondo));
+		glm::mat4 modelArc1(1);
+		modelArc1 = glm::scale(modelArc1, glm::vec3(1.5f));     
+		modelArc1 = glm::translate(modelArc1, glm::vec3(0.2f, 0.01f, -1.3f)); 
+		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelArc1));
 		arc1.Draw(lightingShader); // Se dibuja la maquina 1
 
-		//model = glm::mat4(1);
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		//glUniform1i(glGetUniformLocation(lightingShader.Program, "transparency"), 0);
-		////Body
-		//modelTemp = model = glm::translate(model, dogPos);
-		//modelTemp = model = glm::rotate(model, glm::radians(dogRot), glm::vec3(0.0f, 1.0f, 0.0f));
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		//DogBody.Draw(lightingShader);
-		//////Head
-		//model = modelTemp;
-		//model = glm::translate(model, glm::vec3(0.0f, 0.093f, 0.208f));
-		//model = glm::rotate(model, glm::radians(head), glm::vec3(0.0f, 0.0f, 1.0f));
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		//HeadDog.Draw(lightingShader);
-		////Tail 
-		//model = modelTemp;
-		//model = glm::translate(model, glm::vec3(0.0f, 0.026f, -0.288f));
-		//model = glm::rotate(model, glm::radians(tail), glm::vec3(0.0f, 0.0f, -1.0f));
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		//DogTail.Draw(lightingShader);
-		////Front Left Leg
-		//model = modelTemp;
-		//model = glm::translate(model, glm::vec3(0.112f, -0.044f, 0.074f));
-		//model = glm::rotate(model, glm::radians(FLegs), glm::vec3(-1.0f, 0.0f, 0.0f));
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		//F_LeftLeg.Draw(lightingShader);
-		////Front Right Leg
-		//model = modelTemp;
-		//model = glm::translate(model, glm::vec3(-0.111f, -0.055f, 0.074f));
-		//model = glm::rotate(model, glm::radians(FLegs), glm::vec3(1.0f, 0.0f, 0.0f));
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		//F_RightLeg.Draw(lightingShader);
-		////Back Left Leg
-		//model = modelTemp;
-		//model = glm::translate(model, glm::vec3(0.082f, -0.046, -0.218));
-		//model = glm::rotate(model, glm::radians(RLegs), glm::vec3(1.0f, 0.0f, 0.0f));
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		//B_LeftLeg.Draw(lightingShader);
-		////Back Right Leg
-		//model = modelTemp;
-		//model = glm::translate(model, glm::vec3(-0.083f, -0.057f, -0.231f));
-		//model = glm::rotate(model, glm::radians(RLegs), glm::vec3(-1.0f, 0.0f, 0.0f));
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		//B_RightLeg.Draw(lightingShader);
+		glm::mat4 modelArc2(1);
+		modelArc2 = glm::translate(modelArc2, glm::vec3(3.5f, 0.0f, -2.0f));
+		modelArc2 = glm::scale(modelArc2, glm::vec3(0.09f));
+		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelArc2));
+		arc2.Draw(lightingShader);
 
+		// Sala 2
 
-		//model = glm::mat4(1);
-		//glEnable(GL_BLEND);//Avtiva la funcionalidad para trabajar el canal alfa
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		//glUniform1i(glGetUniformLocation(lightingShader.Program, "transparency"), 1);
-		//model = glm::rotate(model, glm::radians(rotBall), glm::vec3(0.0f, 1.0f, 0.0f));
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		//Ball.Draw(lightingShader);
-		//glDisable(GL_BLEND);  //Desactiva el canal alfa 
-		//glBindVertexArray(0);
+		// Sala 3
 
 
 		// Also draw the lamp object, again binding the appropriate shader
