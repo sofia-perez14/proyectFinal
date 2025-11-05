@@ -182,6 +182,8 @@ int main()
 	Shader lampShader("Shader/lamp.vs", "Shader/lamp.frag");
 
 	// modelos
+	// Carga del escenario
+	//Model esce((char*)"Models/Galeria.obj");
 	// Sala 1
 	Model arc1((char*)"Models/arcade_machine.obj"); //Primeros modelos
 	Model arc2((char*)"Models/game_machine_0000001.obj");
@@ -307,6 +309,14 @@ int main()
 
 
 		//Carga de modelos
+
+		// Escenario
+
+		//glm::mat4 modelEsc(1);
+		////modelEsc = glm::translate(modelEsc, glm::vec3(3.5f, 0.0f, -2.0f));
+		////modelEsc = glm::scale(modelEsc, glm::vec3(0.09f, 0.85f, 0.95f));
+		//glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelEsc));
+		//esce.Draw(lightingShader);
 
 		// Sala 1
 
