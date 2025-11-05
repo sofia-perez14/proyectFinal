@@ -189,7 +189,7 @@ int main()
 	// Sala 2
 
 	// Sala 3
-
+	Model warrior((char*)"Models/sala3/Young_Warrior_1105011248_texture.obj");
 
 
 	// First, set the container's VAO (and VBO)
@@ -325,7 +325,11 @@ int main()
 		// Sala 2
 
 		// Sala 3
-
+		glm::mat4 modelwarrior(1);
+		modelwarrior = glm::scale(modelwarrior, glm::vec3(1.5f));     
+		modelwarrior = glm::translate(modelwarrior, glm::vec3(0.2f, 0.01f, -1.3f));
+		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelwarrior));
+		warrior.Draw(lightingShader); // Se dibuja la maquina 1
 
 		// Also draw the lamp object, again binding the appropriate shader
 		lampShader.Use();
@@ -532,6 +536,8 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos) {
 
 	lastX = xPos;
 	lastY = yPos;
+
+
 
 	camera.ProcessMouseMovement(xOffset, yOffset);
 }
