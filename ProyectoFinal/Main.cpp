@@ -1,6 +1,7 @@
 // Proyecto final. Galería de videojuegos
 // Integrantes:
 // Perez Ortiz Sofia
+// //Reynoso Ortega Francisco Javier
 // No. de cuenta: 319074806
 // Fecha de entrega: 19 de noviembre de 2025
 
