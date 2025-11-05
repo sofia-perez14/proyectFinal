@@ -172,6 +172,11 @@ int main()
     // Sala 1
     Model arc1((char*)"Models/arcade_machine.obj");
     Model arc2((char*)"Models/game_machine_0000001.obj");
+    Model arc3((char*)"Models/Super_Famicom_Console_1105070442_texture.obj");
+    Model arc4((char*)"Models/GameBoy_1105065316_texture.obj");
+    Model arc5((char*)"Models/Atari_Console_Classic_1105064245_texture.obj");
+    Model arc6((char*)"Models/Classic_Gaming_Consol_1105062825_texture.obj");
+    Model arc7((char*)"Models/Super_Famicom_Console_1105070442_texture.obj");
     // Sala 3
     Model warrior((char*)"Models/sala3/Young_Warrior_1105044244_texture.obj");
 
@@ -295,6 +300,24 @@ int main()
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelArc2));
             arc2.Draw(lightingShader);
         }
+
+        glm::mat4 modelArc3(1);
+        modelArc3 = glm::translate(modelArc3, glm::vec3(-5.6f, 0.3f, 1.0f));
+        modelArc3 = glm::scale(modelArc3, glm::vec3(1.0f));
+        glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelArc3));
+        arc3.Draw(lightingShader);
+
+        glm::mat4 modelArc4(1);
+        modelArc4 = glm::translate(modelArc4, glm::vec3(-3.9f, 0.3f, 1.0f));
+        modelArc4 = glm::scale(modelArc4, glm::vec3(1.0f));
+        glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelArc4));
+        arc4.Draw(lightingShader);
+
+        glm::mat4 modelArc5(1);
+        modelArc5 = glm::translate(modelArc5, glm::vec3(-2.3f, 0.3f, 1.0f));
+        modelArc5 = glm::scale(modelArc5, glm::vec3(1.0f));
+        glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelArc5));
+        arc5.Draw(lightingShader);
 
         // Sala 3: Guerrero (centro)
         {
