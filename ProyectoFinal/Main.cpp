@@ -128,7 +128,7 @@ GLfloat lastFrame = 0.0f; // Time of last frame
 
 int main()
 {
-<<<<<<< HEAD
+//<<<<<<< HEAD
 	// Init GLFW
 	glfwInit();
 	// Set all the required options for GLFW
@@ -139,7 +139,7 @@ int main()
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);*/
 
 	// Create a GLFWwindow object that we can use for GLFW's functions
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Previo 11. Sofia Perez", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Proyecto Final", nullptr, nullptr);
 
 	if (nullptr == window)
 	{
@@ -398,7 +398,7 @@ int main()
 
 
 	return 0;
-=======
+
     // Init GLFW
     glfwInit();
 
@@ -609,7 +609,7 @@ int main()
     // Terminate
     glfwTerminate();
     return 0;
->>>>>>> b8afc2143aa9b9615ac5a9c96ac9e8e1325c1603
+//>>>>>>> b8afc2143aa9b9615ac5a9c96ac9e8e1325c1603
 }
 
 // Moves/alters the camera positions based on user input
