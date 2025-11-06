@@ -148,7 +148,7 @@ glm::vec3 lightPos(0.0f), Light1(0.0f);
 const float FLOOR_Y = 0.0f; // el piso en Y=0
 const float LIFT = 0.02f; // leve elevación para evitar z-fighting
 
-// Cubo para pedestal/lámpara
+// Cubo para debug (sin UV)
 float vertices[] = {
     -0.5f,-0.5f,-0.5f, 0,0,-1,  0.5f,-0.5f,-0.5f, 0,0,-1,  0.5f,0.5f,-0.5f, 0,0,-1,
      0.5f,0.5f,-0.5f, 0,0,-1,  -0.5f,0.5f,-0.5f, 0,0,-1, -0.5f,-0.5f,-0.5f,0,0,-1,
@@ -176,17 +176,40 @@ float quadData[] = {
     -0.5f,-0.5f,0.0f,   0,0,1,     0,0
 };
 
+// Cubo 1x1 con UV (36 vértices) para el pedestal
+float pedestalCube[] = {
+    // -Z
+    -0.5f,-0.5f,-0.5f, 0,0,-1, 0,0,  0.5f,-0.5f,-0.5f, 0,0,-1, 1,0,  0.5f,0.5f,-0.5f, 0,0,-1, 1,1,
+     0.5f,0.5f,-0.5f, 0,0,-1, 1,1, -0.5f,0.5f,-0.5f, 0,0,-1, 0,1, -0.5f,-0.5f,-0.5f, 0,0,-1, 0,0,
+     // +Z
+     -0.5f,-0.5f, 0.5f, 0,0,1, 0,0,   0.5f,-0.5f, 0.5f, 0,0,1, 1,0,   0.5f,0.5f, 0.5f, 0,0,1, 1,1,
+      0.5f,0.5f, 0.5f, 0,0,1, 1,1,  -0.5f,0.5f, 0.5f, 0,0,1, 0,1,  -0.5f,-0.5f, 0.5f, 0,0,1, 0,0,
+      // -X
+      -0.5f, 0.5f, 0.5f,-1,0,0, 1,1, -0.5f, 0.5f,-0.5f,-1,0,0, 0,1, -0.5f,-0.5f,-0.5f,-1,0,0, 0,0,
+      -0.5f,-0.5f,-0.5f,-1,0,0, 0,0, -0.5f,-0.5f, 0.5f,-1,0,0, 1,0, -0.5f, 0.5f, 0.5f,-1,0,0, 1,1,
+      // +X
+       0.5f, 0.5f, 0.5f, 1,0,0, 1,1,  0.5f, 0.5f,-0.5f, 1,0,0, 0,1,  0.5f,-0.5f,-0.5f, 1,0,0, 0,0,
+       0.5f,-0.5f,-0.5f, 1,0,0, 0,0,  0.5f,-0.5f, 0.5f, 1,0,0, 1,0,  0.5f, 0.5f, 0.5f, 1,0,0, 1,1,
+       // -Y
+       -0.5f,-0.5f,-0.5f, 0,-1,0, 0,1,  0.5f,-0.5f,-0.5f, 0,-1,0, 1,1,  0.5f,-0.5f, 0.5f, 0,-1,0, 1,0,
+        0.5f,-0.5f, 0.5f, 0,-1,0, 1,0, -0.5f,-0.5f, 0.5f, 0,-1,0, 0,0, -0.5f,-0.5f,-0.5f, 0,-1,0, 0,1,
+        // +Y
+        -0.5f, 0.5f,-0.5f, 0,1,0, 0,1,  0.5f, 0.5f,-0.5f, 0,1,0, 1,1,  0.5f, 0.5f, 0.5f, 0,1,0, 1,0,
+         0.5f, 0.5f, 0.5f, 0,1,0, 1,0, -0.5f, 0.5f, 0.5f, 0,1,0, 0,0, -0.5f, 0.5f,-0.5f, 0,1,0, 0,1
+};
+
 // anim/delta
 float rotBall = 0.0f; bool AnimBall = false; bool AnimDog = false; float rotDog = 0.0f;
 int dogAnim = 0; float FLegs = 0, RLegs = 0, head = 0, tail = 0; glm::vec3 dogPos(0); float dogRot = 0; bool step = false; float limite = 2.2f;
 GLfloat deltaTime = 0.0f, lastFrame = 0.0f;
 
 // VAOs/VBOs
-GLuint lampVBO = 0, lampVAO = 0;
-GLuint quadVAO = 0, quadVBO = 0;
+GLuint lampVBO = 0, lampVAO = 0;       // cubo debug
+GLuint quadVAO = 0, quadVBO = 0;       // quads
+GLuint pedVAO = 0, pedVBO = 0;        // pedestal (cubo con UV)
 
 // Texturas (Models/sala3/)
-GLuint texSign = 0, texArrows = 0, texWoodFloor = 0, texWall = 0;
+GLuint texSign = 0, texArrows = 0, texWoodFloor = 0, texWall = 0, texPedestal = 0;
 
 int main() {
     glfwInit();
@@ -228,7 +251,7 @@ int main() {
     Model vr((char*)"Models/sala3/VR_headset_with_two_m_1105231651_texture.obj");
     Model warrior((char*)"Models/sala3/Animation_Walking_withSkin.fbx");
 
-    // VAO cubo
+    // VAO cubo debug
     glGenVertexArrays(1, &lampVAO);
     glGenBuffers(1, &lampVBO);
     glBindVertexArray(lampVAO);
@@ -244,6 +267,17 @@ int main() {
     glBindVertexArray(quadVAO);
     glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadData), quadData, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);                 glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))); glEnableVertexAttribArray(2);
+    glBindVertexArray(0);
+
+    // VAO/VBO pedestal (cubo UV)
+    glGenVertexArrays(1, &pedVAO);
+    glGenBuffers(1, &pedVBO);
+    glBindVertexArray(pedVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, pedVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(pedestalCube), pedestalCube, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);                 glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))); glEnableVertexAttribArray(2);
@@ -266,11 +300,13 @@ int main() {
     texArrows = SOIL_load_OGL_texture("Models/sala3/floor_arrows.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_COMPRESS_TO_DXT);
     texWoodFloor = SOIL_load_OGL_texture("Models/sala3/wood_floor.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_COMPRESS_TO_DXT);
     texWall = SOIL_load_OGL_texture("Models/sala3/wall_concrete.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_COMPRESS_TO_DXT);
+    texPedestal = SOIL_load_OGL_texture("Models/sala3/pedestal_charcoal.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_COMPRESS_TO_DXT);
 
     if (!texSign)      std::cout << "No se cargo Models/sala3/vr_sign.png\n";
     if (!texArrows)    std::cout << "No se cargo Models/sala3/floor_arrows.png\n";
     if (!texWoodFloor) std::cout << "No se cargo Models/sala3/wood_floor.jpg\n";
     if (!texWall)      std::cout << "No se cargo Models/sala3/wall_concrete.jpg\n";
+    if (!texPedestal)  std::cout << "No se cargo Models/sala3/pedestal_charcoal.jpg\n";
 
     auto setupRepeat = [](GLuint id) {
         glBindTexture(GL_TEXTURE_2D, id);
@@ -283,6 +319,7 @@ int main() {
     setupRepeat(texArrows);
     setupRepeat(texWoodFloor);
     setupRepeat(texWall);
+    setupRepeat(texPedestal);
     glBindTexture(GL_TEXTURE_2D, 0);
 
     static double t0 = glfwGetTime();
@@ -310,12 +347,12 @@ int main() {
             glUniformMatrix4fv(qView, 1, GL_FALSE, glm::value_ptr(view));
             glUniformMatrix4fv(qProj, 1, GL_FALSE, glm::value_ptr(projection));
             glUniform1i(qTex, 0);
-            glUniform2f(qTile, 16.0f, 16.0f); // más repetición por tamaño grande
+            glUniform2f(qTile, 16.0f, 16.0f); // repetición alta
 
             glm::mat4 m(1.0f);
             m = glm::translate(m, glm::vec3(0.0f, FLOOR_Y, -2.0f));
             m = glm::rotate(m, glm::radians(-90.0f), glm::vec3(1, 0, 0));
-            m = glm::scale(m, glm::vec3(40.0f, 32.0f, 1.0f)); // 4x (antes 10x8)
+            m = glm::scale(m, glm::vec3(40.0f, 32.0f, 1.0f)); // 4x del anterior
             glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
 
             glActiveTexture(GL_TEXTURE0);
@@ -371,25 +408,31 @@ int main() {
             arc5.Draw(lightingShader);
         }
 
-        // ====== PEDESTAL (apoya en el piso) ======
+        // ====== PEDESTAL TEXTURIZADO ======
         {
-            colorShader.Use();
-            GLint cModel = glGetUniformLocation(colorShader.Program, "model");
-            GLint cView = glGetUniformLocation(colorShader.Program, "view");
-            GLint cProj = glGetUniformLocation(colorShader.Program, "projection");
-            GLint cColor = glGetUniformLocation(colorShader.Program, "uColor");
-            glUniformMatrix4fv(cView, 1, GL_FALSE, glm::value_ptr(view));
-            glUniformMatrix4fv(cProj, 1, GL_FALSE, glm::value_ptr(projection));
-            glUniform3f(cColor, 0.12f, 0.12f, 0.12f);
+            quadShader.Use();
+            GLint qModel = glGetUniformLocation(quadShader.Program, "model");
+            GLint qView = glGetUniformLocation(quadShader.Program, "view");
+            GLint qProj = glGetUniformLocation(quadShader.Program, "projection");
+            GLint qTex = glGetUniformLocation(quadShader.Program, "uTex");
+            GLint qTile = glGetUniformLocation(quadShader.Program, "uTiling");
+            glUniformMatrix4fv(qView, 1, GL_FALSE, glm::value_ptr(view));
+            glUniformMatrix4fv(qProj, 1, GL_FALSE, glm::value_ptr(projection));
+            glUniform1i(qTex, 0);
+            glUniform2f(qTile, 2.0f, 2.0f); // tiling suave
 
             glm::mat4 m(1.0f);
-            m = glm::translate(m, glm::vec3(0.0f, 0.3f, -2.0f)); // base toca Y=0
+            // Altura 0.6 -> centro a y=0.3 para tocar el piso
+            m = glm::translate(m, glm::vec3(0.0f, 0.3f, -2.0f));
             m = glm::scale(m, glm::vec3(0.6f, 0.6f, 0.6f));
-            glUniformMatrix4fv(cModel, 1, GL_FALSE, glm::value_ptr(m));
+            glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
 
-            glBindVertexArray(lampVAO);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texPedestal);
+            glBindVertexArray(pedVAO);
             glDrawArrays(GL_TRIANGLES, 0, 36);
             glBindVertexArray(0);
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
 
         // ====== FLECHAS ENCIMA DEL PISO ======
@@ -495,6 +538,7 @@ int main() {
         }
 
         // ====== PARED DE FONDO (tiling) ======
+       // ====== PAREDES ALREDEDOR DEL PISO ======
         {
             quadShader.Use();
             GLint qModel = glGetUniformLocation(quadShader.Program, "model");
@@ -505,20 +549,66 @@ int main() {
             glUniformMatrix4fv(qView, 1, GL_FALSE, glm::value_ptr(view));
             glUniformMatrix4fv(qProj, 1, GL_FALSE, glm::value_ptr(projection));
             glUniform1i(qTex, 0);
-            glUniform2f(qTile, 3.0f, 1.5f);
 
-            glm::mat4 m(1.0f);
-            m = glm::translate(m, glm::vec3(0.0f, 1.4f, -2.6f)); // detrás del backplate
-            m = glm::scale(m, glm::vec3(7.0f, 3.0f, 1.0f));
-            glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
+            // Tamaño del piso (coincide con tu quad del piso)
+            const float floorW = 40.0f;        // ancho X
+            const float floorD = 32.0f;        // fondo Z
+            const float floorZ = -2.0f;        // centro del piso en Z
+            const float margin = 1.0f;         // que sobresalga un poco
+            const float wallH = 3.8f;         // “un poco más alta”
+            const float halfW = floorW * 0.5f;
+            const float halfD = floorD * 0.5f;
+
+            // tiling para que no se estire
+            glUniform2f(qTile, 3.0f, 1.6f);
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texWall);
             glBindVertexArray(quadVAO);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
+
+            // BACK (detrás) – cara hacia +Z
+            {
+                glm::mat4 m(1.0f);
+                m = glm::translate(m, glm::vec3(0.0f, wallH * 0.5f, floorZ - halfD - 0.5f - margin));
+                m = glm::scale(m, glm::vec3(floorW + 2 * margin, wallH, 1.0f));
+                glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+            }
+
+            // FRONT (frente) – cara hacia −Z (rotamos 180° en Y)
+            {
+                glm::mat4 m(1.0f);
+                m = glm::translate(m, glm::vec3(0.0f, wallH * 0.5f, floorZ + halfD + 0.5f + margin));
+                m = glm::rotate(m, glm::radians(180.0f), glm::vec3(0, 1, 0));
+                m = glm::scale(m, glm::vec3(floorW + 2 * margin, wallH, 1.0f));
+                glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+            }
+
+            // LEFT (izquierda) – cara hacia +X (rotamos −90° en Y)
+            {
+                glm::mat4 m(1.0f);
+                m = glm::translate(m, glm::vec3(-halfW - 0.5f - margin, wallH * 0.5f, floorZ));
+                m = glm::rotate(m, glm::radians(-90.0f), glm::vec3(0, 1, 0));
+                m = glm::scale(m, glm::vec3(floorD + 2 * margin, wallH, 1.0f));
+                glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+            }
+
+            // RIGHT (derecha) – cara hacia −X (rotamos +90° en Y)
+            {
+                glm::mat4 m(1.0f);
+                m = glm::translate(m, glm::vec3(halfW + 0.5f + margin, wallH * 0.5f, floorZ));
+                m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, 0));
+                m = glm::scale(m, glm::vec3(floorD + 2 * margin, wallH, 1.0f));
+                glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+            }
+
             glBindVertexArray(0);
             glBindTexture(GL_TEXTURE_2D, 0);
         }
+
 
         // ====== Guerrero skinned (sobre el piso) ======
         skinnedShader.Use();
