@@ -1,9 +1,10 @@
 // Proyecto final. Galería de videojuegos
+// 
 // Integrantes:
 // Perez Ortiz Sofia
 // Sanchez Zamora Jesus
-// //Reynoso Ortega Francisco Javier
-// No. de cuenta: 319074806
+// Reynoso Ortega Francisco Javier
+// 
 // Fecha de entrega: 19 de noviembre de 2025
 
 #include <iostream>
@@ -244,11 +245,23 @@ int main() {
     Shader quadShader("Shader/_quad_runtime.vs", "Shader/_quad_runtime.frag");
 
     // Modelos
+
+    //Sala 1
     Model arc1((char*)"Models/arcade_machine.obj");
     Model arc2((char*)"Models/game_machine_0000001.obj");
     Model arc3((char*)"Models/Super_Famicom_Console_1105070442_texture.obj");
     Model arc4((char*)"Models/GameBoy_1105065316_texture.obj");
     Model arc5((char*)"Models/Atari_Console_Classic_1105064245_texture.obj");
+    Model arc6((char*)"Models/Floating_Hat_Table_1106092111_texture.obj");
+    Model arc7((char*)"Models/Hay_un_cuadro_de_pint_1106084744_texture.obj");
+    Model arc8((char*)"Models/Emerald_Adventure_Gam_1106073057_texture.obj");
+    Model arc9((char*)"Models/Pac_Man_Arcade_Game_S_1106071050_texture.obj");
+    Model arc10((char*)"Models/Retro_Gaming_Classic_1106070225_texture.obj");
+      
+    
+    //Sala 2
+    
+    //Sala 3
     Model vr((char*)"Models/sala3/VR_headset_with_two_m_1105231651_texture.obj");
     Model warrior((char*)"Models/sala3/Animation_Walking_withSkin.fbx");
     Model escenario((char*)"Models/wip-gallery-v0003/source/GalleryModel_v0003/GalleryModel_v0007.obj");
@@ -354,7 +367,7 @@ int main() {
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             escenario.Draw(lightingShader);
         }
-
+        // Modelos que son de la sala 1
         // Consolas y elementos sobre el escenario
         {
             glm::mat4 m(1);
@@ -390,6 +403,41 @@ int main() {
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             arc5.Draw(lightingShader);
         }
+
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-2.3f, FLOOR_Y + LIFT, 1.0f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            arc6.Draw(lightingShader);
+        }
+
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-2.3f, FLOOR_Y + LIFT, 1.0f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            arc7.Draw(lightingShader);
+        }
+
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-2.3f, FLOOR_Y + LIFT, 1.0f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            arc8.Draw(lightingShader);
+        }
+
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-2.3f, FLOOR_Y + LIFT, 1.0f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            arc9.Draw(lightingShader);
+        }
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-2.3f, FLOOR_Y + LIFT, 1.0f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            arc10.Draw(lightingShader);
+        }
+
 
         // Xbox SX puesto también sobre el escenario
         {
