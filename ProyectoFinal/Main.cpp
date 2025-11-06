@@ -1,6 +1,7 @@
 // Proyecto final. Galería de videojuegos
 // Integrantes:
 // Perez Ortiz Sofia
+// Sanchez Zamora Jesus
 // //Reynoso Ortega Francisco Javier
 // No. de cuenta: 319074806
 // Fecha de entrega: 19 de noviembre de 2025
@@ -145,8 +146,8 @@ GLfloat lastX = WIDTH / 2.0f, lastY = HEIGHT / 2.0f; bool keys[1024]{}; bool fir
 glm::vec3 lightPos(0.0f), Light1(0.0f);
 
 // Piso y lifts
-const float FLOOR_Y = 0.0f; // el piso en Y=0
-const float LIFT = 0.02f; // leve elevación para evitar z-fighting
+const float FLOOR_Y = 2.0f; // el piso en Y=0
+const float LIFT = 1.5f; // leve elevación para evitar z-fighting
 
 // Cubo para debug (sin UV)
 float vertices[] = {
@@ -250,7 +251,10 @@ int main() {
     Model arc5((char*)"Models/Atari_Console_Classic_1105064245_texture.obj");
     Model vr((char*)"Models/sala3/VR_headset_with_two_m_1105231651_texture.obj");
     Model warrior((char*)"Models/sala3/Animation_Walking_withSkin.fbx");
-
+    Model escenario((char*)"Models/wip-gallery-v0003/source/GalleryModel_v0003/GalleryModel_v0007.obj");
+    Model xboxSX((char*)"Models/XboxSeriesX/_1106040925_texture.obj");
+    Model Nswitch((char*)"Models/nintendo-switch/_1106051703_texture.obj");
+    
     // VAO cubo debug
     glGenVertexArrays(1, &lampVAO);
     glGenBuffers(1, &lampVBO);
@@ -333,39 +337,8 @@ int main() {
         glm::mat4 projection = glm::perspective(glm::radians(camera.GetZoom()), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.5f, 50.0f);
         glm::mat4 view = camera.GetViewMatrix();
 
-        // ====== PISO 4x (tiling alto) ======
-        {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            quadShader.Use();
-            GLint qModel = glGetUniformLocation(quadShader.Program, "model");
-            GLint qView = glGetUniformLocation(quadShader.Program, "view");
-            GLint qProj = glGetUniformLocation(quadShader.Program, "projection");
-            GLint qTex = glGetUniformLocation(quadShader.Program, "uTex");
-            GLint qTile = glGetUniformLocation(quadShader.Program, "uTiling");
-            glUniformMatrix4fv(qView, 1, GL_FALSE, glm::value_ptr(view));
-            glUniformMatrix4fv(qProj, 1, GL_FALSE, glm::value_ptr(projection));
-            glUniform1i(qTex, 0);
-            glUniform2f(qTile, 16.0f, 16.0f); // repetición alta
-
-            glm::mat4 m(1.0f);
-            m = glm::translate(m, glm::vec3(0.0f, FLOOR_Y, -2.0f));
-            m = glm::rotate(m, glm::radians(-90.0f), glm::vec3(1, 0, 0));
-            m = glm::scale(m, glm::vec3(40.0f, 32.0f, 1.0f)); // 4x del anterior
-            glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texWoodFloor);
-            glBindVertexArray(quadVAO);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-            glBindVertexArray(0);
-            glBindTexture(GL_TEXTURE_2D, 0);
-
-            glDisable(GL_BLEND);
-        }
-
-        // ====== MODELOS SOBRE EL PISO ======
+ 
+        // ====== MODELOS SOBRE EL ESCENARIO (piso principal) ======
         lightingShader.Use();
         GLint modelLoc = glGetUniformLocation(lightingShader.Program, "model");
         GLint viewLoc = glGetUniformLocation(lightingShader.Program, "view");
@@ -373,40 +346,74 @@ int main() {
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
+        // Escenario: piso principal .obj
         {
             glm::mat4 m(1);
-            m = glm::translate(m, { -3.0f, FLOOR_Y + LIFT, -3.0f });
-            m = glm::rotate(m, glm::radians(25.0f), { 0,1,0 });
-            m = glm::scale(m, { 1.5f,1.5f,1.5f });
+            m = glm::translate(m, glm::vec3(4.0f, FLOOR_Y - LIFT, -16.0f)); // Ajusta según centro del modelo escenario
+            m = glm::scale(m, glm::vec3(0.02f)); // Cambia la escala si tu modelo requiere crecer/disminuir
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            escenario.Draw(lightingShader);
+        }
+
+        // Consolas y elementos sobre el escenario
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(0.0f, FLOOR_Y + LIFT, -2.0f)); // Elige la posición encima del escenario
+            m = glm::rotate(m, glm::radians(25.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(1.5f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             arc1.Draw(lightingShader);
         }
         {
             glm::mat4 m(1);
-            m = glm::translate(m, { 3.0f, FLOOR_Y + LIFT, -3.0f });
-            m = glm::rotate(m, glm::radians(-25.0f), { 0,1,0 });
-            m = glm::scale(m, { 0.09f,0.09f,0.09f });
+            m = glm::translate(m, glm::vec3(3.0f, FLOOR_Y + LIFT, -3.0f));
+            m = glm::rotate(m, glm::radians(-25.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(0.09f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             arc2.Draw(lightingShader);
         }
         {
             glm::mat4 m(1);
-            m = glm::translate(m, { -5.6f, FLOOR_Y + LIFT, 1.0f });
+            m = glm::translate(m, glm::vec3(-5.6f, FLOOR_Y + LIFT, 1.0f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             arc3.Draw(lightingShader);
         }
         {
             glm::mat4 m(1);
-            m = glm::translate(m, { -3.9f, FLOOR_Y + LIFT, 1.0f });
+            m = glm::translate(m, glm::vec3(-3.9f, FLOOR_Y + LIFT, 1.0f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             arc4.Draw(lightingShader);
         }
         {
             glm::mat4 m(1);
-            m = glm::translate(m, { -2.3f, FLOOR_Y + LIFT, 1.0f });
+            m = glm::translate(m, glm::vec3(-2.3f, FLOOR_Y + LIFT, 1.0f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             arc5.Draw(lightingShader);
         }
+
+        // Xbox SX puesto también sobre el escenario
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(4.0f, FLOOR_Y + LIFT, 2.0f));
+            m = glm::scale(m, glm::vec3(0.5f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            xboxSX.Draw(lightingShader);
+        }
+        // Xbox SX puesto también sobre el escenario
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT, 2.0f));
+            m = glm::scale(m, glm::vec3(0.5f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            Nswitch.Draw(lightingShader);
+        }
+
+        // Puedes seguir agregando modelos encima cambiando solo el vector de traslación, por ejemplo:
+        // m = glm::translate(m, glm::vec3(X, FLOOR_Y + LIFT, Z));
+        // Elige X, Z para colocarlos en distintas partes del escenario.
+
+        // Recuerda ajustar la escala y posición para cada modelo según las proporciones del .obj piso
+
 
         // ====== PEDESTAL TEXTURIZADO ======
         {
@@ -472,7 +479,7 @@ int main() {
             lightingShader.Use();
             GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model");
             glm::mat4 m(1.0f);
-            m = glm::translate(m, glm::vec3(0.0f, 0.65f, -2.0f));
+            m = glm::translate(m, glm::vec3(0.0f, FLOOR_Y + LIFT, -2.0f));
             m = glm::rotate(m, glm::radians(180.0f), glm::vec3(0, 1, 0));
             m = glm::scale(m, glm::vec3(22.0f)); // escala solicitada
             glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
@@ -537,77 +544,7 @@ int main() {
             glDisable(GL_BLEND);
         }
 
-        // ====== PARED DE FONDO (tiling) ======
-       // ====== PAREDES ALREDEDOR DEL PISO ======
-        {
-            quadShader.Use();
-            GLint qModel = glGetUniformLocation(quadShader.Program, "model");
-            GLint qView = glGetUniformLocation(quadShader.Program, "view");
-            GLint qProj = glGetUniformLocation(quadShader.Program, "projection");
-            GLint qTex = glGetUniformLocation(quadShader.Program, "uTex");
-            GLint qTile = glGetUniformLocation(quadShader.Program, "uTiling");
-            glUniformMatrix4fv(qView, 1, GL_FALSE, glm::value_ptr(view));
-            glUniformMatrix4fv(qProj, 1, GL_FALSE, glm::value_ptr(projection));
-            glUniform1i(qTex, 0);
 
-            // Tamaño del piso (coincide con tu quad del piso)
-            const float floorW = 40.0f;        // ancho X
-            const float floorD = 32.0f;        // fondo Z
-            const float floorZ = -2.0f;        // centro del piso en Z
-            const float margin = 1.0f;         // que sobresalga un poco
-            const float wallH = 3.8f;         // “un poco más alta”
-            const float halfW = floorW * 0.5f;
-            const float halfD = floorD * 0.5f;
-
-            // tiling para que no se estire
-            glUniform2f(qTile, 3.0f, 1.6f);
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texWall);
-            glBindVertexArray(quadVAO);
-
-            // BACK (detrás) – cara hacia +Z
-            {
-                glm::mat4 m(1.0f);
-                m = glm::translate(m, glm::vec3(0.0f, wallH * 0.5f, floorZ - halfD - 0.5f - margin));
-                m = glm::scale(m, glm::vec3(floorW + 2 * margin, wallH, 1.0f));
-                glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
-                glDrawArrays(GL_TRIANGLES, 0, 6);
-            }
-
-            // FRONT (frente) – cara hacia −Z (rotamos 180° en Y)
-            {
-                glm::mat4 m(1.0f);
-                m = glm::translate(m, glm::vec3(0.0f, wallH * 0.5f, floorZ + halfD + 0.5f + margin));
-                m = glm::rotate(m, glm::radians(180.0f), glm::vec3(0, 1, 0));
-                m = glm::scale(m, glm::vec3(floorW + 2 * margin, wallH, 1.0f));
-                glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
-                glDrawArrays(GL_TRIANGLES, 0, 6);
-            }
-
-            // LEFT (izquierda) – cara hacia +X (rotamos −90° en Y)
-            {
-                glm::mat4 m(1.0f);
-                m = glm::translate(m, glm::vec3(-halfW - 0.5f - margin, wallH * 0.5f, floorZ));
-                m = glm::rotate(m, glm::radians(-90.0f), glm::vec3(0, 1, 0));
-                m = glm::scale(m, glm::vec3(floorD + 2 * margin, wallH, 1.0f));
-                glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
-                glDrawArrays(GL_TRIANGLES, 0, 6);
-            }
-
-            // RIGHT (derecha) – cara hacia −X (rotamos +90° en Y)
-            {
-                glm::mat4 m(1.0f);
-                m = glm::translate(m, glm::vec3(halfW + 0.5f + margin, wallH * 0.5f, floorZ));
-                m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, 0));
-                m = glm::scale(m, glm::vec3(floorD + 2 * margin, wallH, 1.0f));
-                glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
-                glDrawArrays(GL_TRIANGLES, 0, 6);
-            }
-
-            glBindVertexArray(0);
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
 
 
         // ====== Guerrero skinned (sobre el piso) ======
