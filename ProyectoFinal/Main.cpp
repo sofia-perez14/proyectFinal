@@ -10,6 +10,9 @@
 #include <iostream>
 #include <cmath>
 #include <cstring>
+#include <vector>
+#include <string>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "stb_image.h"
@@ -120,6 +123,29 @@ void main(){
 }
 )";
 
+// === Skybox shaders ===
+static const char* SKYBOX_VS_SRC = R"(#version 330 core
+layout (location=0) in vec3 aPos;
+out vec3 TexDir;
+uniform mat4 view;
+uniform mat4 projection;
+void main(){
+    mat4 viewNoT = mat4(mat3(view));         // sin traslación
+    vec4 pos = projection * viewNoT * vec4(aPos,1.0);
+    gl_Position = pos.xyww;                  // empujar al infinito
+    TexDir = aPos;
+}
+)";
+
+static const char* SKYBOX_FRAG_SRC = R"(#version 330 core
+in vec3 TexDir;
+out vec4 FragColor;
+uniform samplerCube skybox;
+void main(){
+    FragColor = texture(skybox, TexDir);
+}
+)";
+
 static bool WriteTextFile(const char* path, const char* src) {
     FILE* f = nullptr;
 #ifdef _WIN32
@@ -200,6 +226,28 @@ float pedestalCube[] = {
          0.5f, 0.5f, 0.5f, 0,1,0, 1,0, -0.5f, 0.5f, 0.5f, 0,1,0, 0,0, -0.5f, 0.5f,-0.5f, 0,1,0, 0,1
 };
 
+// === SKYBOX data (solo posiciones, cubo unitario) ===
+float skyboxVertices[] = {
+    //   posiciones
+    -1.0f,  1.0f, -1.0f,  -1.0f, -1.0f, -1.0f,   1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,   1.0f,  1.0f, -1.0f,  -1.0f,  1.0f, -1.0f,
+
+    -1.0f, -1.0f,  1.0f,  -1.0f, -1.0f, -1.0f,  -1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,  -1.0f,  1.0f,  1.0f,  -1.0f, -1.0f,  1.0f,
+
+     1.0f, -1.0f, -1.0f,   1.0f, -1.0f,  1.0f,   1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,   1.0f,  1.0f, -1.0f,   1.0f, -1.0f, -1.0f,
+
+    -1.0f, -1.0f,  1.0f,  -1.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,   1.0f, -1.0f,  1.0f,  -1.0f, -1.0f,  1.0f,
+
+    -1.0f,  1.0f, -1.0f,   1.0f,  1.0f, -1.0f,   1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,  -1.0f,  1.0f,  1.0f,  -1.0f,  1.0f, -1.0f,
+
+    -1.0f, -1.0f, -1.0f,  -1.0f, -1.0f,  1.0f,   1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,  -1.0f, -1.0f,  1.0f,   1.0f, -1.0f,  1.0f
+};
+
 // anim/delta
 float rotBall = 0.0f; bool AnimBall = false; bool AnimDog = false; float rotDog = 0.0f;
 int dogAnim = 0; float FLegs = 0, RLegs = 0, head = 0, tail = 0; glm::vec3 dogPos(0); float dogRot = 0; bool step = false; float limite = 2.2f;
@@ -208,10 +256,39 @@ GLfloat deltaTime = 0.0f, lastFrame = 0.0f;
 // VAOs/VBOs
 GLuint lampVBO = 0, lampVAO = 0;       // cubo debug
 GLuint quadVAO = 0, quadVBO = 0;       // quads
-GLuint pedVAO = 0, pedVBO = 0;        // pedestal (cubo con UV)
+GLuint pedVAO = 0, pedVBO = 0;         // pedestal (cubo con UV)
+
+// Skybox handles
+GLuint skyVAO = 0, skyVBO = 0;
+GLuint texSkybox = 0;
 
 // Texturas (Models/sala3/)
 GLuint texSign = 0, texArrows = 0, texWoodFloor = 0, texWall = 0, texPedestal = 0;
+
+// === Loader de cubemap con SOIL2 ===
+static GLuint LoadCubemapSOIL(
+    const char* px, const char* nx,
+    const char* py, const char* ny,
+    const char* pz, const char* nz)
+{
+    GLuint id = SOIL_load_OGL_cubemap(
+        px, nx, py, ny, pz, nz,
+        SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,
+        SOIL_FLAG_MIPMAPS | SOIL_FLAG_COMPRESS_TO_DXT
+    );
+    if (!id) {
+        std::cout << "Fallo cubemap: " << SOIL_last_result() << "\n";
+        return 0;
+    }
+    glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    return id;
+}
 
 int main() {
     glfwInit();
@@ -237,12 +314,17 @@ int main() {
     WriteTextFile("Shader/_color_runtime.frag", COLOR_FRAG_SRC);
     WriteTextFile("Shader/_quad_runtime.vs", QUAD_VS_SRC);
     WriteTextFile("Shader/_quad_runtime.frag", QUAD_FRAG_SRC);
+    WriteTextFile("Shader/_skybox_runtime.vs", SKYBOX_VS_SRC);
+    WriteTextFile("Shader/_skybox_runtime.frag", SKYBOX_FRAG_SRC);
 
     Shader lightingShader("Shader/lighting.vs", "Shader/lighting.frag");
     Shader lampShader("Shader/lamp.vs", "Shader/lamp.frag");
     Shader skinnedShader("Shader/_skin_runtime.vs", "Shader/_tex_runtime.frag");
     Shader colorShader("Shader/_color_runtime.vs", "Shader/_color_runtime.frag");
     Shader quadShader("Shader/_quad_runtime.vs", "Shader/_quad_runtime.frag");
+    Shader skyShader("Shader/_skybox_runtime.vs", "Shader/_skybox_runtime.frag");
+    skyShader.Use();
+    glUniform1i(glGetUniformLocation(skyShader.Program, "skybox"), 0);
 
     // Modelos
 
@@ -257,17 +339,16 @@ int main() {
     Model arc8((char*)"Models/Emerald_Adventure_Gam_1106073057_texture.obj");
     Model arc9((char*)"Models/Pac_Man_Arcade_Game_S_1106071050_texture.obj");
     Model arc10((char*)"Models/Retro_Gaming_Classic_1106070225_texture.obj");
-      
-    
+
     //Sala 2
-    
+
     //Sala 3
     Model vr((char*)"Models/sala3/VR_headset_with_two_m_1105231651_texture.obj");
     Model warrior((char*)"Models/sala3/Animation_Walking_withSkin.fbx");
     Model escenario((char*)"Models/wip-gallery-v0003/source/GalleryModel_v0003/GalleryModel_v0007.obj");
     Model xboxSX((char*)"Models/XboxSeriesX/_1106040925_texture.obj");
     Model Nswitch((char*)"Models/nintendo-switch/_1106051703_texture.obj");
-    
+
     // VAO cubo debug
     glGenVertexArrays(1, &lampVAO);
     glGenBuffers(1, &lampVBO);
@@ -300,6 +381,16 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))); glEnableVertexAttribArray(2);
     glBindVertexArray(0);
 
+    // === VAO/VBO skybox ===
+    glGenVertexArrays(1, &skyVAO);
+    glGenBuffers(1, &skyVBO);
+    glBindVertexArray(skyVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glBindVertexArray(0);
+
     // Samplers del lighting.frag
     lightingShader.Use();
     glUniform1i(glGetUniformLocation(lightingShader.Program, "material.diffuse"), 0);
@@ -311,19 +402,19 @@ int main() {
     skinnedShader.Use();
     glUniform1i(glGetUniformLocation(skinnedShader.Program, "texture_diffuse1"), 0);
 
-    // Cargar texturas
+    // Cargar texturas 2D
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     texSign = SOIL_load_OGL_texture("Models/sala3/vr_sign.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_COMPRESS_TO_DXT);
     texArrows = SOIL_load_OGL_texture("Models/sala3/floor_arrows.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_COMPRESS_TO_DXT);
     texWoodFloor = SOIL_load_OGL_texture("Models/sala3/wood_floor.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_COMPRESS_TO_DXT);
     texWall = SOIL_load_OGL_texture("Models/sala3/wall_concrete.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_COMPRESS_TO_DXT);
-    texPedestal = SOIL_load_OGL_texture("Models/sala3/pedestal_charcoal.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_COMPRESS_TO_DXT);
+    texPedestal = SOIL_load_OGL_texture("Models/sala3/pedestal_charcoal.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_COMPRESS_TO_DXT);
 
     if (!texSign)      std::cout << "No se cargo Models/sala3/vr_sign.png\n";
     if (!texArrows)    std::cout << "No se cargo Models/sala3/floor_arrows.png\n";
     if (!texWoodFloor) std::cout << "No se cargo Models/sala3/wood_floor.jpg\n";
     if (!texWall)      std::cout << "No se cargo Models/sala3/wall_concrete.jpg\n";
-    if (!texPedestal)  std::cout << "No se cargo Models/sala3/pedestal_charcoal.jpg\n";
+    if (!texPedestal)  std::cout << "No se cargo Models/sala3/pedestal_charcoal.png\n";
 
     auto setupRepeat = [](GLuint id) {
         glBindTexture(GL_TEXTURE_2D, id);
@@ -339,6 +430,17 @@ int main() {
     setupRepeat(texPedestal);
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    // === Cargar cubemap (skybox) ===
+    texSkybox = LoadCubemapSOIL(
+        "Models/sala3/skybox/right.png",
+        "Models/sala3/skybox/left.png",
+        "Models/sala3/skybox/top.png",
+        "Models/sala3/skybox/bot.png",
+        "Models/sala3/skybox/front.png",
+        "Models/sala3/skybox/back.png"
+    );
+    if (!texSkybox) std::cout << "No se pudo cargar el skybox\n";
+
     static double t0 = glfwGetTime();
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = (float)glfwGetTime(); deltaTime = currentFrame - lastFrame; lastFrame = currentFrame;
@@ -350,7 +452,6 @@ int main() {
         glm::mat4 projection = glm::perspective(glm::radians(camera.GetZoom()), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.5f, 50.0f);
         glm::mat4 view = camera.GetViewMatrix();
 
- 
         // ====== MODELOS SOBRE EL ESCENARIO (piso principal) ======
         lightingShader.Use();
         GLint modelLoc = glGetUniformLocation(lightingShader.Program, "model");
@@ -403,28 +504,24 @@ int main() {
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             arc5.Draw(lightingShader);
         }
-
         {
             glm::mat4 m(1);
             m = glm::translate(m, glm::vec3(-2.3f, FLOOR_Y + LIFT, 1.0f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             arc6.Draw(lightingShader);
         }
-
         {
             glm::mat4 m(1);
             m = glm::translate(m, glm::vec3(-2.3f, FLOOR_Y + LIFT, 1.0f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             arc7.Draw(lightingShader);
         }
-
         {
             glm::mat4 m(1);
             m = glm::translate(m, glm::vec3(-2.3f, FLOOR_Y + LIFT, 1.0f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             arc8.Draw(lightingShader);
         }
-
         {
             glm::mat4 m(1);
             m = glm::translate(m, glm::vec3(-2.3f, FLOOR_Y + LIFT, 1.0f));
@@ -438,8 +535,7 @@ int main() {
             arc10.Draw(lightingShader);
         }
 
-
-        // Xbox SX puesto también sobre el escenario
+        // Xbox SX
         {
             glm::mat4 m(1);
             m = glm::translate(m, glm::vec3(4.0f, FLOOR_Y + LIFT, 2.0f));
@@ -447,7 +543,7 @@ int main() {
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             xboxSX.Draw(lightingShader);
         }
-        // Xbox SX puesto también sobre el escenario
+        // Switch
         {
             glm::mat4 m(1);
             m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT, 2.0f));
@@ -455,13 +551,6 @@ int main() {
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             Nswitch.Draw(lightingShader);
         }
-
-        // Puedes seguir agregando modelos encima cambiando solo el vector de traslación, por ejemplo:
-        // m = glm::translate(m, glm::vec3(X, FLOOR_Y + LIFT, Z));
-        // Elige X, Z para colocarlos en distintas partes del escenario.
-
-        // Recuerda ajustar la escala y posición para cada modelo según las proporciones del .obj piso
-
 
         // ====== PEDESTAL TEXTURIZADO ======
         {
@@ -592,9 +681,6 @@ int main() {
             glDisable(GL_BLEND);
         }
 
-
-
-
         // ====== Guerrero skinned (sobre el piso) ======
         skinnedShader.Use();
         GLint sModelLoc = glGetUniformLocation(skinnedShader.Program, "model");
@@ -634,6 +720,27 @@ int main() {
         glBindVertexArray(lampVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
+
+        // ====== SKYBOX (dibujar al final) ======
+        glDepthFunc(GL_LEQUAL);   // permitir z == 1.0
+        glDepthMask(GL_FALSE);    // no escribir z
+
+        skyShader.Use();
+        glm::mat4 viewNoT = glm::mat4(glm::mat3(view));
+        GLint sv = glGetUniformLocation(skyShader.Program, "view");
+        GLint sp = glGetUniformLocation(skyShader.Program, "projection");
+        glUniformMatrix4fv(sv, 1, GL_FALSE, glm::value_ptr(viewNoT));
+        glUniformMatrix4fv(sp, 1, GL_FALSE, glm::value_ptr(projection));
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, texSkybox);
+        glBindVertexArray(skyVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+        glDepthMask(GL_TRUE);
+        glDepthFunc(GL_LESS);
 
         glfwSwapBuffers(window);
     }
