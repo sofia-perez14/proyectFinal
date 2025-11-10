@@ -332,6 +332,7 @@ int main() {
     Model arc9((char*)"Models/Pac_Man_Arcade_Game_S_1106071050_texture.obj");
     Model arc10((char*)"Models/Retro_Gaming_Classic_1106070225_texture.obj");
 
+    Model game((char*)"Models/sala3/Game_ready_3D_prop_a_1110045024_texture.obj");
     Model vr((char*)"Models/sala3/VR_headset_with_two_m_1105231651_texture.obj");
     Model warrior((char*)"Models/sala3/Animation_Walking_withSkin.fbx");
     Model escenario((char*)"Models/wip-gallery-v0003/source/GalleryModel_v0003/GalleryModel_v0007.obj");
@@ -433,6 +434,7 @@ int main() {
     // AJUSTES RÁPIDOS — ESTACIÓN VR
     // (MUEVE SOLO ESTOS VALORES)
     // ===============================
+
     // Headset VR
     glm::vec3 VR_HEADSET_POS = glm::vec3(-32.0f, 5.0f, -10.0f);
     float     VR_HEADSET_YAW = 180.0f;   // grados sobre Y
@@ -675,6 +677,19 @@ int main() {
             m = glm::scale(m, glm::vec3(0.02f));
             glUniformMatrix4fv(sModelLoc, 1, GL_FALSE, glm::value_ptr(m));
             warrior.Draw(skinnedShader);
+        }
+
+        // ====== game (prop de sala) — CORREGIDO translate ======
+        {
+            lightingShader.Use();
+            GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model");
+            glm::mat4 m(1.0f);
+            // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso
+            m = glm::translate(m, glm::vec3(-20.0f, FLOOR_Y + LIFT, 2.5f));
+            m = glm::rotate(m, glm::radians(VR_HEADSET_YAW), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(2.5f));
+            glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
+            game.Draw(lightingShader);
         }
 
         // ====== Cubo lámpara (debug) ======
