@@ -336,8 +336,19 @@ int main() {
     Model vr((char*)"Models/sala3/VR_headset_with_two_m_1105231651_texture.obj");
     Model warrior((char*)"Models/sala3/Animation_Walking_withSkin.fbx");
     Model escenario((char*)"Models/wip-gallery-v0003/source/GalleryModel_v0003/GalleryModel_v0007.obj");
-    Model xboxSX((char*)"Models/XboxSeriesX/_1106040925_texture.obj");
-    Model Nswitch((char*)"Models/nintendo-switch/_1106051703_texture.obj");
+    //Sala 2
+    Model CuboBase1((char*)"Models/Sala2/Cubo/_1108054346_texture.obj");
+    Model CuboBase2((char*)"Models/Sala2/Cubo/_1108054346_texture.obj");
+    Model CuboBase3((char*)"Models/Sala2/Cubo/_1108054346_texture.obj");
+    Model xboxSX((char*)"Models/Sala2/XboxSeriesX/_1106040925_texture.obj");
+    Model Nswitch((char*)"Models/Sala2/nintendo-switch/_1106051703_texture.obj");
+    Model PS5((char*)"Models/Sala2/ps5/source/PS5/PS5.obj");
+    Model XboxLogo((char*)"Models/Sala2/XboxLogo/Screenshot_2025_11_07_1108045114_texture.obj");
+    Model NswitchLogo((char*)"Models/Sala2/NintendoLogo/_1108052044_texture.obj");
+    Model PS5Logo((char*)"Models/Sala2/PlayStationLogo/PS_1108045851_texture.obj");
+
+
+
 
     // VAO cubo debug
     glGenVertexArrays(1, &lampVAO);
@@ -577,6 +588,93 @@ int main() {
             glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
             vr.Draw(lightingShader);
         }
+
+        //sala 2
+
+
+
+
+// Cubo base 1
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT, 3.0f));
+            m = glm::scale(m, glm::vec3(0.8f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            CuboBase1.Draw(lightingShader);
+        }
+        // Cubo base 2
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT, 15.0f));
+            m = glm::scale(m, glm::vec3(0.8f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            CuboBase2.Draw(lightingShader);
+        }
+        // Cubo base 3
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT, 26.0f));
+            m = glm::scale(m, glm::vec3(0.8f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            CuboBase3.Draw(lightingShader);
+        }
+        // Xbox SX
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT + 1.30f, 3.0f));
+            m = glm::scale(m, glm::vec3(0.5f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            xboxSX.Draw(lightingShader);
+        }
+        // Switch
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT + 1.10f, 15.0f));
+            m = glm::scale(m, glm::vec3(0.5f));
+            m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, 0));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            Nswitch.Draw(lightingShader);
+        }
+        // PS5
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT + 0.90f, 26.0f));
+            m = glm::scale(m, glm::vec3(0.5f));
+            m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, 0));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            PS5.Draw(lightingShader);
+        }
+
+
+        // XboxLogo
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(2.20f, FLOOR_Y + LIFT + 3.5f, 3.0f));
+            m = glm::scale(m, glm::vec3(1.5f));
+            m = glm::rotate(m, glm::radians(-90.0f), glm::vec3(0, 1, 0));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            XboxLogo.Draw(lightingShader);
+        }
+        // NswitchLogo
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(2.20f, FLOOR_Y + LIFT + 3.5f, 15.0f));
+            m = glm::scale(m, glm::vec3(1.5f));
+            m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, 0));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            NswitchLogo.Draw(lightingShader);
+        }
+        // PS5Logo
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(2.20f, FLOOR_Y + LIFT + 3.5f, 26.0f));
+            m = glm::scale(m, glm::vec3(1.5f));
+            m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, 0));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            PS5Logo.Draw(lightingShader);
+        }
+
+        //termina sala 2
 
         // ====== BACKPLATE ======
         {
