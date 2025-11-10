@@ -464,7 +464,7 @@ int main() {
         {
             glm::mat4 m(1);
             m = glm::translate(m, glm::vec3(4.0f, FLOOR_Y - LIFT, -16.0f)); // Ajusta según centro del modelo escenario
-            m = glm::scale(m, glm::vec3(0.02f)); // Cambia la escala si tu modelo requiere crecer/disminuir
+            m = glm::scale(m, glm::vec3(0.02f)); // Cambia la escala 
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             escenario.Draw(lightingShader);
         }
@@ -472,23 +472,23 @@ int main() {
         // Consolas y elementos sobre el escenario
         {
             glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(0.0f, FLOOR_Y + LIFT, -2.0f)); // Elige la posición encima del escenario
+            m = glm::translate(m, glm::vec3(-27.0f, FLOOR_Y + LIFT, 29.0f)); // Elige la posición encima del escenario
             m = glm::rotate(m, glm::radians(25.0f), glm::vec3(0, 1, 0));
-            m = glm::scale(m, glm::vec3(1.5f));
+            m = glm::scale(m, glm::vec3(1.1f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             arc1.Draw(lightingShader);
         }
         {
             glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(3.0f, FLOOR_Y + LIFT, -3.0f));
-            m = glm::rotate(m, glm::radians(-25.0f), glm::vec3(0, 1, 0));
-            m = glm::scale(m, glm::vec3(0.09f));
+            m = glm::translate(m, glm::vec3(-22.0f, FLOOR_Y + LIFT, 29.0f));
+            //m = glm::rotate(m, glm::radians(-25.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(0.07f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             arc2.Draw(lightingShader);
         }
         {
             glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(-5.6f, FLOOR_Y + LIFT, 1.0f));
+            m = glm::translate(m, glm::vec3(-23.0f, FLOOR_Y + LIFT, 29.0f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             arc3.Draw(lightingShader);
         }
@@ -524,7 +524,8 @@ int main() {
         }
         {
             glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(-2.3f, FLOOR_Y + LIFT, 1.0f));
+            m = glm::translate(m, glm::vec3(-26.0f, FLOOR_Y + 4.0, 41.8f));
+            m = glm::rotate(m, glm::radians(180.0f), glm::vec3(0, 1, 0));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             arc9.Draw(lightingShader);
         }
