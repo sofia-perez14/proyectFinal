@@ -508,7 +508,7 @@ int main() {
             escenario.Draw(lightingShader);
         }
 
-        // (Ejemplos de props, puedes quitarlos)
+        // Son mis modelos de la sala 1
         {
             glm::mat4 m(1);
             m = glm::translate(m, glm::vec3(-27.0f, FLOOR_Y + LIFT, 29.0f));
