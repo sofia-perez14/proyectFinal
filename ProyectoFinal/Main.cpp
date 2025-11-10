@@ -332,9 +332,7 @@ int main() {
     Model arc9((char*)"Models/Pac_Man_Arcade_Game_S_1106071050_texture.obj");
     Model arc10((char*)"Models/Retro_Gaming_Classic_1106070225_texture.obj");
 
-    Model game((char*)"Models/sala3/Game_ready_3D_prop_a_1110045024_texture.obj");
-    Model vr((char*)"Models/sala3/VR_headset_with_two_m_1105231651_texture.obj");
-    Model warrior((char*)"Models/sala3/Animation_Walking_withSkin.fbx");
+    
     Model escenario((char*)"Models/wip-gallery-v0003/source/GalleryModel_v0003/GalleryModel_v0007.obj");
     //Sala 2
     Model CuboBase1((char*)"Models/Sala2/Cubo/_1108054346_texture.obj");
@@ -347,6 +345,11 @@ int main() {
     Model NswitchLogo((char*)"Models/Sala2/NintendoLogo/_1108052044_texture.obj");
     Model PS5Logo((char*)"Models/Sala2/PlayStationLogo/PS_1108045851_texture.obj");
 
+    //Sala3 
+    Model game((char*)"Models/sala3/Game_ready_3D_prop_a_1110045024_texture.obj");
+    Model vr((char*)"Models/sala3/VR_headset_with_two_m_1105231651_texture.obj");
+    Model warrior((char*)"Models/sala3/Animation_Walking_withSkin.fbx");
+    Model console((char*)"Models/sala3/Game_ready_3D_prop_a_1110065502_texture.obj");
 
 
 
@@ -447,8 +450,8 @@ int main() {
     // ===============================
 
     // Headset VR
-    glm::vec3 VR_HEADSET_POS = glm::vec3(-32.0f, 5.0f, -10.0f);
-    float     VR_HEADSET_YAW = 180.0f;   // grados sobre Y
+    glm::vec3 VR_HEADSET_POS = glm::vec3(-32.0f, 4.0f, -10.0f);
+    float     VR_HEADSET_YAW = 360.0f;   // grados sobre Y
     float     VR_HEADSET_SCL = 15.0f;
 
     // Pedestal (para que "asiente" en el piso, usa Y = FLOOR_Y + (alto/2))
@@ -779,15 +782,19 @@ int main() {
 
         // ====== game (prop de sala) — CORREGIDO translate ======
         {
-            lightingShader.Use();
-            GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model");
-            glm::mat4 m(1.0f);
-            // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso
-            m = glm::translate(m, glm::vec3(-20.0f, FLOOR_Y + LIFT, 2.5f));
-            m = glm::rotate(m, glm::radians(VR_HEADSET_YAW), glm::vec3(0, 1, 0));
-            m = glm::scale(m, glm::vec3(2.5f));
-            glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
-            game.Draw(lightingShader);
+            lightingShader.Use(); GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model"); glm::mat4 m(1.0f); // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso 
+            m = glm::translate(m, glm::vec3(-20.0f, FLOOR_Y + LIFT, 2.5f)); 
+            m = glm::rotate(m, glm::radians(VR_HEADSET_YAW), glm::vec3(0, 1, 0)); 
+            m = glm::scale(m, glm::vec3(2.5f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m)); 
+            game.Draw(lightingShader); 
+        }
+
+        {
+            lightingShader.Use(); GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model"); glm::mat4 m(1.0f); // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso 
+            m = glm::translate(m, glm::vec3(-20.0f, 5.0f , -13.0f)); 
+            m = glm::rotate(m, glm::radians(360.0f), glm::vec3(0, 1, 0)); 
+            m = glm::scale(m, glm::vec3(2.0f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m)); 
+            console.Draw(lightingShader); 
         }
 
         // ====== Cubo lámpara (debug) ======
