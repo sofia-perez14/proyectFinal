@@ -1,10 +1,5 @@
 // Proyecto final. Galería de videojuegos
-// 
-// Integrantes:
-// Perez Ortiz Sofia
-// Sanchez Zamora Jesus
-// Reynoso Ortega Francisco Javier
-// 
+// Integrantes: Perez Ortiz Sofia, Sanchez Zamora Jesus, Reynoso Ortega Francisco Javier
 // Fecha de entrega: 19 de noviembre de 2025
 
 #include <iostream>
@@ -130,9 +125,9 @@ out vec3 TexDir;
 uniform mat4 view;
 uniform mat4 projection;
 void main(){
-    mat4 viewNoT = mat4(mat3(view));         // sin traslación
+    mat4 viewNoT = mat4(mat3(view));
     vec4 pos = projection * viewNoT * vec4(aPos,1.0);
-    gl_Position = pos.xyww;                  // empujar al infinito
+    gl_Position = pos.xyww;
     TexDir = aPos;
 }
 )";
@@ -173,8 +168,8 @@ GLfloat lastX = WIDTH / 2.0f, lastY = HEIGHT / 2.0f; bool keys[1024]{}; bool fir
 glm::vec3 lightPos(0.0f), Light1(0.0f);
 
 // Piso y lifts
-const float FLOOR_Y = 1.2f; // el piso en Y=0
-const float LIFT = 1.32f; // leve elevación para evitar z-fighting
+const float FLOOR_Y = 1.2f;  // altura de tu piso
+const float LIFT = 1.32f;    // pequeño desfase para evitar z-fighting
 
 // Cubo para debug (sin UV)
 float vertices[] = {
@@ -192,19 +187,17 @@ float vertices[] = {
      0.5f, 0.5f, 0.5f,0,1,0,  -0.5f, 0.5f, 0.5f,0,1,0, -0.5f, 0.5f,-0.5f,0,1,0
 };
 
-// Quad 1x1 (XY) para rótulo/flechas/piso/pared
+// Quad 1x1 (pos, normal, uv)
 float quadData[] = {
-    // pos              // normal   // uv
     -0.5f,-0.5f,0.0f,   0,0,1,     0,0,
      0.5f,-0.5f,0.0f,   0,0,1,     1,0,
      0.5f, 0.5f,0.0f,   0,0,1,     1,1,
-
      0.5f, 0.5f,0.0f,   0,0,1,     1,1,
     -0.5f, 0.5f,0.0f,   0,0,1,     0,1,
     -0.5f,-0.5f,0.0f,   0,0,1,     0,0
 };
 
-// Cubo 1x1 con UV (36 vértices) para el pedestal
+// Cubo UV (pedestal)
 float pedestalCube[] = {
     // -Z
     -0.5f,-0.5f,-0.5f, 0,0,-1, 0,0,  0.5f,-0.5f,-0.5f, 0,0,-1, 1,0,  0.5f,0.5f,-0.5f, 0,0,-1, 1,1,
@@ -226,24 +219,18 @@ float pedestalCube[] = {
          0.5f, 0.5f, 0.5f, 0,1,0, 1,0, -0.5f, 0.5f, 0.5f, 0,1,0, 0,0, -0.5f, 0.5f,-0.5f, 0,1,0, 0,1
 };
 
-// === SKYBOX data (solo posiciones, cubo unitario) ===
+// === SKYBOX data ===
 float skyboxVertices[] = {
-    //   posiciones
     -1.0f,  1.0f, -1.0f,  -1.0f, -1.0f, -1.0f,   1.0f, -1.0f, -1.0f,
      1.0f, -1.0f, -1.0f,   1.0f,  1.0f, -1.0f,  -1.0f,  1.0f, -1.0f,
-
     -1.0f, -1.0f,  1.0f,  -1.0f, -1.0f, -1.0f,  -1.0f,  1.0f, -1.0f,
     -1.0f,  1.0f, -1.0f,  -1.0f,  1.0f,  1.0f,  -1.0f, -1.0f,  1.0f,
-
      1.0f, -1.0f, -1.0f,   1.0f, -1.0f,  1.0f,   1.0f,  1.0f,  1.0f,
      1.0f,  1.0f,  1.0f,   1.0f,  1.0f, -1.0f,   1.0f, -1.0f, -1.0f,
-
     -1.0f, -1.0f,  1.0f,  -1.0f,  1.0f,  1.0f,   1.0f,  1.0f,  1.0f,
      1.0f,  1.0f,  1.0f,   1.0f, -1.0f,  1.0f,  -1.0f, -1.0f,  1.0f,
-
     -1.0f,  1.0f, -1.0f,   1.0f,  1.0f, -1.0f,   1.0f,  1.0f,  1.0f,
      1.0f,  1.0f,  1.0f,  -1.0f,  1.0f,  1.0f,  -1.0f,  1.0f, -1.0f,
-
     -1.0f, -1.0f, -1.0f,  -1.0f, -1.0f,  1.0f,   1.0f, -1.0f, -1.0f,
      1.0f, -1.0f, -1.0f,  -1.0f, -1.0f,  1.0f,   1.0f, -1.0f,  1.0f
 };
@@ -254,15 +241,15 @@ int dogAnim = 0; float FLegs = 0, RLegs = 0, head = 0, tail = 0; glm::vec3 dogPo
 GLfloat deltaTime = 0.0f, lastFrame = 0.0f;
 
 // VAOs/VBOs
-GLuint lampVBO = 0, lampVAO = 0;       // cubo debug
-GLuint quadVAO = 0, quadVBO = 0;       // quads
-GLuint pedVAO = 0, pedVBO = 0;         // pedestal (cubo con UV)
+GLuint lampVBO = 0, lampVAO = 0;
+GLuint quadVAO = 0, quadVBO = 0;
+GLuint pedVAO = 0, pedVBO = 0;
 
-// Skybox handles
+// Skybox
 GLuint skyVAO = 0, skyVBO = 0;
 GLuint texSkybox = 0;
 
-// Texturas (Models/sala3/)
+// Texturas
 GLuint texSign = 0, texArrows = 0, texWoodFloor = 0, texWall = 0, texPedestal = 0;
 
 // === Loader de cubemap con SOIL2 ===
@@ -290,6 +277,12 @@ static GLuint LoadCubemapSOIL(
     return id;
 }
 
+// util: forward vector desde yaw (grados)
+static glm::vec3 ForwardFromYaw(float deg) {
+    float r = glm::radians(deg);
+    return glm::normalize(glm::vec3(std::sin(r), 0.0f, -std::cos(r)));
+}
+
 int main() {
     glfwInit();
     glfwWindowHint(GLFW_DEPTH_BITS, 24);
@@ -305,6 +298,7 @@ int main() {
 
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     glEnable(GL_DEPTH_TEST); glDepthFunc(GL_LESS);
+    glDisable(GL_CULL_FACE); // importante si usas escalas negativas para "flip"
     glDisable(GL_BLEND);
 
     // Escribir shaders embebidos
@@ -327,8 +321,6 @@ int main() {
     glUniform1i(glGetUniformLocation(skyShader.Program, "skybox"), 0);
 
     // Modelos
-
-    //Sala 1
     Model arc1((char*)"Models/arcade_machine.obj");
     Model arc2((char*)"Models/game_machine_0000001.obj");
     Model arc3((char*)"Models/Super_Famicom_Console_1105070442_texture.obj");
@@ -340,9 +332,6 @@ int main() {
     Model arc9((char*)"Models/Pac_Man_Arcade_Game_S_1106071050_texture.obj");
     Model arc10((char*)"Models/Retro_Gaming_Classic_1106070225_texture.obj");
 
-    //Sala 2
-
-    //Sala 3
     Model vr((char*)"Models/sala3/VR_headset_with_two_m_1105231651_texture.obj");
     Model warrior((char*)"Models/sala3/Animation_Walking_withSkin.fbx");
     Model escenario((char*)"Models/wip-gallery-v0003/source/GalleryModel_v0003/GalleryModel_v0007.obj");
@@ -356,7 +345,7 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, lampVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);                   glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));   glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); glEnableVertexAttribArray(1);
     glBindVertexArray(0);
 
     // VAO quad
@@ -370,7 +359,7 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))); glEnableVertexAttribArray(2);
     glBindVertexArray(0);
 
-    // VAO/VBO pedestal (cubo UV)
+    // VAO/VBO pedestal
     glGenVertexArrays(1, &pedVAO);
     glGenBuffers(1, &pedVBO);
     glBindVertexArray(pedVAO);
@@ -381,7 +370,7 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))); glEnableVertexAttribArray(2);
     glBindVertexArray(0);
 
-    // === VAO/VBO skybox ===
+    // Skybox
     glGenVertexArrays(1, &skyVAO);
     glGenBuffers(1, &skyVBO);
     glBindVertexArray(skyVAO);
@@ -391,18 +380,17 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glBindVertexArray(0);
 
-    // Samplers del lighting.frag
+    // Samplers
     lightingShader.Use();
     glUniform1i(glGetUniformLocation(lightingShader.Program, "material.diffuse"), 0);
     glUniform1i(glGetUniformLocation(lightingShader.Program, "material.specular"), 1);
     glUniform1f(glGetUniformLocation(lightingShader.Program, "material.shininess"), 16.0f);
     glUniform1i(glGetUniformLocation(lightingShader.Program, "transparency"), 0);
 
-    // Sampler del skinned
     skinnedShader.Use();
     glUniform1i(glGetUniformLocation(skinnedShader.Program, "texture_diffuse1"), 0);
 
-    // Cargar texturas 2D
+    // Texturas 2D
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     texSign = SOIL_load_OGL_texture("Models/sala3/vr_sign.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_COMPRESS_TO_DXT);
     texArrows = SOIL_load_OGL_texture("Models/sala3/floor_arrows.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_COMPRESS_TO_DXT);
@@ -430,7 +418,7 @@ int main() {
     setupRepeat(texPedestal);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    // === Cargar cubemap (skybox) ===
+    // Skybox
     texSkybox = LoadCubemapSOIL(
         "Models/sala3/skybox/right.png",
         "Models/sala3/skybox/left.png",
@@ -441,17 +429,43 @@ int main() {
     );
     if (!texSkybox) std::cout << "No se pudo cargar el skybox\n";
 
-    // --- Referencia de la estación VR ---
-    const glm::vec3 VR_POS(-32.0f, 7.0f, -13.0f);
-    const float VR_ROT_DEG = 360.0f;   // o 180.0f si quieres voltearlo
+    // =============================== 
+    // AJUSTES RÁPIDOS — ESTACIÓN VR
+    // (MUEVE SOLO ESTOS VALORES)
+    // ===============================
+    // Headset VR
+    glm::vec3 VR_HEADSET_POS = glm::vec3(-32.0f, 5.0f, -10.0f);
+    float     VR_HEADSET_YAW = 180.0f;   // grados sobre Y
+    float     VR_HEADSET_SCL = 15.0f;
 
-    // Offsets medidos de tu versión original
-    const float SIGN_DY = 2.10f;       // rótulo/placa ~2.10 por debajo del VR en Y
-    const float SIGN_DZ_FRONT = -0.01f; // rótulo un pelín al frente del VR
-    const float BACKPLATE_DZ = -0.10f;  // backplate un poco detrás del rótulo
+    // Pedestal (para que "asiente" en el piso, usa Y = FLOOR_Y + (alto/2))
+    glm::vec3 PEDESTAL_POS = glm::vec3(-32.0f, FLOOR_Y + 0.30f, -10.0f);
+    glm::vec3 PEDESTAL_SCALE = glm::vec3(0.6f, 0.6f, 0.6f); // alto = 0.6
+    float     PEDESTAL_YAW = 0.0f;
 
-    const float PEDESTAL_DY = 3.20f;   // pedestal ~3.20 por debajo del VR (de 3.5 -> 0.3)
+    // Flechas en el piso
+    glm::vec3 ARROWS_POS = glm::vec3(-32.0f, FLOOR_Y + 0.001f, -10.0f);
+    float     ARROWS_YAW = 180.0f;
+    glm::vec2 ARROWS_TILING = glm::vec2(1.6f, 0.9f);
 
+    // Rótulo (texto)
+    glm::vec3 SIGN_POS = glm::vec3(-32.0f, 3.0f, -10.0f);
+    float     SIGN_YAW = 180.0f;
+    glm::vec2 SIGN_SIZE = glm::vec2(1.00f, 0.18f);
+    float     SIGN_Z_BIAS = 0.04f;      // separarlo del muro en su "forward"
+    bool      SIGN_FLIP_X = false;      // pon true si lo ves espejeado
+
+    // Backplate detrás del rótulo
+    glm::vec3 BACK_POS = glm::vec3(-32.0f, 3.0f, -10.06f);
+    float     BACK_YAW = 180.0f;
+    glm::vec3 BACK_SCALE = glm::vec3(1.20f, 0.28f, 0.05f);
+
+    // Glow (planchita frente al backplate)
+    glm::vec3 GLOW_POS = glm::vec3(-32.0f, 3.0f, -10.03f);
+    float     GLOW_YAW = 180.0f;
+    glm::vec3 GLOW_SCALE = glm::vec3(1.10f, 0.20f, 0.02f);
+
+    // ===============================
 
     static double t0 = glfwGetTime();
     while (!glfwWindowShouldClose(window)) {
@@ -464,7 +478,7 @@ int main() {
         glm::mat4 projection = glm::perspective(glm::radians(camera.GetZoom()), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.5f, 50.0f);
         glm::mat4 view = camera.GetViewMatrix();
 
-        // ====== MODELOS SOBRE EL ESCENARIO (piso principal) ======
+        // ====== MODELOS Y ESCENARIO ======
         lightingShader.Use();
         GLint modelLoc = glGetUniformLocation(lightingShader.Program, "model");
         GLint viewLoc = glGetUniformLocation(lightingShader.Program, "view");
@@ -472,100 +486,26 @@ int main() {
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        // Escenario: piso principal .obj
+        // Escenario
         {
             glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(4.0f, FLOOR_Y - LIFT, -16.0f)); // Ajusta según centro del modelo escenario
-            m = glm::scale(m, glm::vec3(0.02f)); // Cambia la escala 
+            m = glm::translate(m, glm::vec3(4.0f, FLOOR_Y - LIFT, -16.0f));
+            m = glm::scale(m, glm::vec3(0.02f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             escenario.Draw(lightingShader);
         }
-        // Modelos que son de la sala 1
-        // Consolas y elementos sobre el escenario
+
+        // (Ejemplos de props, puedes quitarlos)
         {
             glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(-27.0f, FLOOR_Y + LIFT, 29.0f)); // Elige la posición encima del escenario
+            m = glm::translate(m, glm::vec3(-27.0f, FLOOR_Y + LIFT, 29.0f));
             m = glm::rotate(m, glm::radians(25.0f), glm::vec3(0, 1, 0));
             m = glm::scale(m, glm::vec3(1.1f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             arc1.Draw(lightingShader);
         }
-        {
-            glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(-22.0f, FLOOR_Y + LIFT, 29.0f));
-            //m = glm::rotate(m, glm::radians(-25.0f), glm::vec3(0, 1, 0));
-            m = glm::scale(m, glm::vec3(0.07f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
-            arc2.Draw(lightingShader);
-        }
-        {
-            glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(-23.0f, FLOOR_Y + LIFT, 29.0f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
-            arc3.Draw(lightingShader);
-        }
-        {
-            glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(-3.9f, FLOOR_Y + LIFT, 1.0f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
-            arc4.Draw(lightingShader);
-        }
-        {
-            glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(-2.3f, FLOOR_Y + LIFT, 1.0f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
-            arc5.Draw(lightingShader);
-        }
-        {
-            glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(-2.3f, FLOOR_Y + LIFT, 1.0f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
-            arc6.Draw(lightingShader);
-        }
-        {
-            glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(-2.3f, FLOOR_Y + LIFT, 1.0f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
-            arc7.Draw(lightingShader);
-        }
-        {
-            glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(-2.3f, FLOOR_Y + LIFT, 1.0f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
-            arc8.Draw(lightingShader);
-        }
-        {
-            glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(-26.0f, FLOOR_Y + 4.0, 41.8f));
-            m = glm::rotate(m, glm::radians(180.0f), glm::vec3(0, 1, 0));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
-            arc9.Draw(lightingShader);
-        }
-        {
-            glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(-2.3f, FLOOR_Y + LIFT, 1.0f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
-            arc10.Draw(lightingShader);
-        }
 
-        // Xbox SX
-        {
-            glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(4.0f, FLOOR_Y + LIFT, 2.0f));
-            m = glm::scale(m, glm::vec3(0.5f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
-            xboxSX.Draw(lightingShader);
-        }
-        // Switch
-        {
-            glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT, 2.0f));
-            m = glm::scale(m, glm::vec3(0.5f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
-            Nswitch.Draw(lightingShader);
-        }
-
-        // ====== PEDESTAL TEXTURIZADO ======
+        // ====== PEDESTAL (posición separada) ======
         {
             quadShader.Use();
             GLint qModel = glGetUniformLocation(quadShader.Program, "model");
@@ -579,9 +519,9 @@ int main() {
             glUniform2f(qTile, 2.0f, 2.0f);
 
             glm::mat4 m(1.0f);
-            // Centro del cubo a la altura que lo hacía tocar piso cuando el VR estaba a 3.5.
-            m = glm::translate(m, glm::vec3(VR_POS.x, VR_POS.y - PEDESTAL_DY, VR_POS.z));
-            m = glm::scale(m, glm::vec3(0.6f, 0.6f, 0.6f));
+            m = glm::translate(m, PEDESTAL_POS);
+            m = glm::rotate(m, glm::radians(PEDESTAL_YAW), glm::vec3(0, 1, 0));
+            m = glm::scale(m, PEDESTAL_SCALE);
             glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
 
             glActiveTexture(GL_TEXTURE0);
@@ -592,8 +532,7 @@ int main() {
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
-
-        // ====== FLECHAS ENCIMA DEL PISO (bajo el VR) ======
+        // ====== FLECHAS SOBRE EL PISO (posición separada) ======
         {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -607,13 +546,12 @@ int main() {
             glUniformMatrix4fv(qView, 1, GL_FALSE, glm::value_ptr(view));
             glUniformMatrix4fv(qProj, 1, GL_FALSE, glm::value_ptr(projection));
             glUniform1i(qTex, 0);
-            glUniform2f(qTile, 1.0f, 1.0f);
+            glUniform2f(qTile, ARROWS_TILING.x, ARROWS_TILING.y);
 
             glm::mat4 m(1.0f);
-            m = glm::translate(m, glm::vec3(VR_POS.x, LIFT + 0.001f, VR_POS.z));
+            m = glm::translate(m, ARROWS_POS);
             m = glm::rotate(m, glm::radians(-90.0f), glm::vec3(1, 0, 0));
-            m = glm::rotate(m, glm::radians(VR_ROT_DEG), glm::vec3(0, 0, 1)); // orientar igual que VR
-            m = glm::scale(m, glm::vec3(1.6f, 0.9f, 1.0f));
+            m = glm::rotate(m, glm::radians(ARROWS_YAW), glm::vec3(0, 0, 1));
             glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
 
             glActiveTexture(GL_TEXTURE0);
@@ -626,21 +564,19 @@ int main() {
             glDisable(GL_BLEND);
         }
 
-
-        // ====== VR SOBRE EL PEDESTAL ======
+        // ====== VR HEADSET (posición separada) ======
         {
             lightingShader.Use();
             GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model");
             glm::mat4 m(1.0f);
-            m = glm::translate(m, VR_POS);
-            m = glm::rotate(m, glm::radians(VR_ROT_DEG), glm::vec3(0, 1, 0));
-            m = glm::scale(m, glm::vec3(15.0f)); // tu escala
+            m = glm::translate(m, VR_HEADSET_POS);
+            m = glm::rotate(m, glm::radians(VR_HEADSET_YAW), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(VR_HEADSET_SCL));
             glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
             vr.Draw(lightingShader);
         }
 
-
-        // ====== PLACA (backplate + glow) ======
+        // ====== BACKPLATE ======
         {
             colorShader.Use();
             GLint cModel = glGetUniformLocation(colorShader.Program, "model");
@@ -650,27 +586,37 @@ int main() {
             glUniformMatrix4fv(cView, 1, GL_FALSE, glm::value_ptr(view));
             glUniformMatrix4fv(cProj, 1, GL_FALSE, glm::value_ptr(projection));
 
-            // Backplate oscuro, detrás del rótulo
             glUniform3f(cColor, 0.05f, 0.05f, 0.05f);
             glm::mat4 back(1.0f);
-            back = glm::translate(back, glm::vec3(VR_POS.x, VR_POS.y - SIGN_DY, VR_POS.z + BACKPLATE_DZ));
-            back = glm::rotate(back, glm::radians(VR_ROT_DEG), glm::vec3(0, 1, 0));
-            back = glm::scale(back, glm::vec3(1.20f, 0.28f, 0.05f));
+            back = glm::translate(back, BACK_POS);
+            back = glm::rotate(back, glm::radians(BACK_YAW), glm::vec3(0, 1, 0));
+            back = glm::scale(back, BACK_SCALE);
             glUniformMatrix4fv(cModel, 1, GL_FALSE, glm::value_ptr(back));
             glBindVertexArray(lampVAO);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-
-            // Glow fucsia, justo al frente del backplate
-            glUniform3f(cColor, 0.85f, 0.20f, 0.95f);
-            glm::mat4 glow(1.0f);
-            glow = glm::translate(glow, glm::vec3(VR_POS.x, VR_POS.y - SIGN_DY, VR_POS.z - SIGN_DZ_FRONT));
-            glow = glm::rotate(glow, glm::radians(VR_ROT_DEG), glm::vec3(0, 1, 0));
-            glow = glm::scale(glow, glm::vec3(1.10f, 0.20f, 0.02f));
-            glUniformMatrix4fv(cModel, 1, GL_FALSE, glm::value_ptr(glow));
             glDrawArrays(GL_TRIANGLES, 0, 36);
             glBindVertexArray(0);
         }
 
+        // ====== GLOW ======
+        {
+            colorShader.Use();
+            GLint cModel = glGetUniformLocation(colorShader.Program, "model");
+            GLint cView = glGetUniformLocation(colorShader.Program, "view");
+            GLint cProj = glGetUniformLocation(colorShader.Program, "projection");
+            GLint cColor = glGetUniformLocation(colorShader.Program, "uColor");
+            glUniformMatrix4fv(cView, 1, GL_FALSE, glm::value_ptr(view));
+            glUniformMatrix4fv(cProj, 1, GL_FALSE, glm::value_ptr(projection));
+
+            glUniform3f(cColor, 0.85f, 0.20f, 0.95f);
+            glm::mat4 glow(1.0f);
+            glow = glm::translate(glow, GLOW_POS);
+            glow = glm::rotate(glow, glm::radians(GLOW_YAW), glm::vec3(0, 1, 0));
+            glow = glm::scale(glow, GLOW_SCALE);
+            glUniformMatrix4fv(cModel, 1, GL_FALSE, glm::value_ptr(glow));
+            glBindVertexArray(lampVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+            glBindVertexArray(0);
+        }
 
         // ====== RÓTULO “VR ESTACIÓN” ======
         {
@@ -688,10 +634,14 @@ int main() {
             glUniform1i(qTex, 0);
             glUniform2f(qTile, 1.0f, 1.0f);
 
+            // empuja el rótulo hacia su "forward" para despegarlo del muro
+            glm::vec3 forward = ForwardFromYaw(SIGN_YAW);
             glm::mat4 m(1.0f);
-            m = glm::translate(m, glm::vec3(VR_POS.x, VR_POS.y - SIGN_DY, VR_POS.z - SIGN_DZ_FRONT));
-            m = glm::rotate(m, glm::radians(VR_ROT_DEG), glm::vec3(0, 1, 0));
-            m = glm::scale(m, glm::vec3(1.00f, 0.18f, 1.0f));
+            m = glm::translate(m, SIGN_POS + forward * SIGN_Z_BIAS);
+            m = glm::rotate(m, glm::radians(SIGN_YAW), glm::vec3(0, 1, 0));
+            // flip opcional en X si lo ves espejeado
+            float sx = SIGN_FLIP_X ? -SIGN_SIZE.x : SIGN_SIZE.x;
+            m = glm::scale(m, glm::vec3(sx, SIGN_SIZE.y, 1.0f));
             glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
 
             glActiveTexture(GL_TEXTURE0);
@@ -704,14 +654,13 @@ int main() {
             glDisable(GL_BLEND);
         }
 
-        // ====== Guerrero skinned (sobre el piso) ======
+        // ====== Guerrero skinned ======
         skinnedShader.Use();
         GLint sModelLoc = glGetUniformLocation(skinnedShader.Program, "model");
         GLint sViewLoc = glGetUniformLocation(skinnedShader.Program, "view");
         GLint sProjLoc = glGetUniformLocation(skinnedShader.Program, "projection");
         glUniformMatrix4fv(sViewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(sProjLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
         {
             double t = glfwGetTime() - t0;
             warrior.UpdateAnimation(t);
@@ -721,12 +670,11 @@ int main() {
                 glUniformMatrix4fv(bonesLoc, (GLsizei)bones.size(), GL_FALSE, &bones[0][0][0]);
 
             glm::mat4 m(1.0f);
-            m = glm::translate(m, glm::vec3(-25.0f, FLOOR_Y + LIFT, 2.5f));        // mover en X
-            m = glm::rotate(m, glm::radians(45.0f), glm::vec3(0, 1, 0));           // girar sobre Y
+            m = glm::translate(m, glm::vec3(-25.0f, FLOOR_Y + LIFT, 2.5f));
+            m = glm::rotate(m, glm::radians(45.0f), glm::vec3(0, 1, 0));
             m = glm::scale(m, glm::vec3(0.02f));
             glUniformMatrix4fv(sModelLoc, 1, GL_FALSE, glm::value_ptr(m));
             warrior.Draw(skinnedShader);
-
         }
 
         // ====== Cubo lámpara (debug) ======
@@ -736,34 +684,29 @@ int main() {
         GLint pl = glGetUniformLocation(lampShader.Program, "projection");
         glUniformMatrix4fv(vl, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(pl, 1, GL_FALSE, glm::value_ptr(projection));
-
         glm::mat4 lampM(1.0f);
         lampM = glm::translate(lampM, lightPos);
         lampM = glm::scale(lampM, glm::vec3(0.2f));
         glUniformMatrix4fv(ml, 1, GL_FALSE, glm::value_ptr(lampM));
-
         glBindVertexArray(lampVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
-        // ====== SKYBOX (dibujar al final) ======
-        glDepthFunc(GL_LEQUAL);   // permitir z == 1.0
-        glDepthMask(GL_FALSE);    // no escribir z
-
+        // ====== SKYBOX ======
+        glDepthFunc(GL_LEQUAL);
+        glDepthMask(GL_FALSE);
         skyShader.Use();
         glm::mat4 viewNoT = glm::mat4(glm::mat3(view));
         GLint sv = glGetUniformLocation(skyShader.Program, "view");
         GLint sp = glGetUniformLocation(skyShader.Program, "projection");
         glUniformMatrix4fv(sv, 1, GL_FALSE, glm::value_ptr(viewNoT));
         glUniformMatrix4fv(sp, 1, GL_FALSE, glm::value_ptr(projection));
-
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, texSkybox);
         glBindVertexArray(skyVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
 

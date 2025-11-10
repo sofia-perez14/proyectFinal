@@ -4,8 +4,8 @@ out vec3 TexDir;
 uniform mat4 view;
 uniform mat4 projection;
 void main(){
-    mat4 viewNoT = mat4(mat3(view));         // sin traslación
+    mat4 viewNoT = mat4(mat3(view));
     vec4 pos = projection * viewNoT * vec4(aPos,1.0);
-    gl_Position = pos.xyww;                  // empujar al infinito
+    gl_Position = pos.xyww;
     TexDir = aPos;
 }
