@@ -173,8 +173,8 @@ GLfloat lastX = WIDTH / 2.0f, lastY = HEIGHT / 2.0f; bool keys[1024]{}; bool fir
 glm::vec3 lightPos(0.0f), Light1(0.0f);
 
 // Piso y lifts
-const float FLOOR_Y = 2.0f; // el piso en Y=0
-const float LIFT = 1.5f; // leve elevación para evitar z-fighting
+const float FLOOR_Y = 1.2f; // el piso en Y=0
+const float LIFT = 1.32f; // leve elevación para evitar z-fighting
 
 // Cubo para debug (sin UV)
 float vertices[] = {
@@ -441,6 +441,18 @@ int main() {
     );
     if (!texSkybox) std::cout << "No se pudo cargar el skybox\n";
 
+    // --- Referencia de la estación VR ---
+    const glm::vec3 VR_POS(-32.0f, 7.0f, -13.0f);
+    const float VR_ROT_DEG = 360.0f;   // o 180.0f si quieres voltearlo
+
+    // Offsets medidos de tu versión original
+    const float SIGN_DY = 2.10f;       // rótulo/placa ~2.10 por debajo del VR en Y
+    const float SIGN_DZ_FRONT = -0.01f; // rótulo un pelín al frente del VR
+    const float BACKPLATE_DZ = -0.10f;  // backplate un poco detrás del rótulo
+
+    const float PEDESTAL_DY = 3.20f;   // pedestal ~3.20 por debajo del VR (de 3.5 -> 0.3)
+
+
     static double t0 = glfwGetTime();
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = (float)glfwGetTime(); deltaTime = currentFrame - lastFrame; lastFrame = currentFrame;
@@ -564,11 +576,11 @@ int main() {
             glUniformMatrix4fv(qView, 1, GL_FALSE, glm::value_ptr(view));
             glUniformMatrix4fv(qProj, 1, GL_FALSE, glm::value_ptr(projection));
             glUniform1i(qTex, 0);
-            glUniform2f(qTile, 2.0f, 2.0f); // tiling suave
+            glUniform2f(qTile, 2.0f, 2.0f);
 
             glm::mat4 m(1.0f);
-            // Altura 0.6 -> centro a y=0.3 para tocar el piso
-            m = glm::translate(m, glm::vec3(0.0f, 0.3f, -2.0f));
+            // Centro del cubo a la altura que lo hacía tocar piso cuando el VR estaba a 3.5.
+            m = glm::translate(m, glm::vec3(VR_POS.x, VR_POS.y - PEDESTAL_DY, VR_POS.z));
             m = glm::scale(m, glm::vec3(0.6f, 0.6f, 0.6f));
             glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
 
@@ -580,7 +592,8 @@ int main() {
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
-        // ====== FLECHAS ENCIMA DEL PISO ======
+
+        // ====== FLECHAS ENCIMA DEL PISO (bajo el VR) ======
         {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -597,8 +610,9 @@ int main() {
             glUniform2f(qTile, 1.0f, 1.0f);
 
             glm::mat4 m(1.0f);
-            m = glm::translate(m, glm::vec3(0.0f, FLOOR_Y + 0.001f, -2.0f));
+            m = glm::translate(m, glm::vec3(VR_POS.x, LIFT + 0.001f, VR_POS.z));
             m = glm::rotate(m, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+            m = glm::rotate(m, glm::radians(VR_ROT_DEG), glm::vec3(0, 0, 1)); // orientar igual que VR
             m = glm::scale(m, glm::vec3(1.6f, 0.9f, 1.0f));
             glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
 
@@ -612,17 +626,19 @@ int main() {
             glDisable(GL_BLEND);
         }
 
+
         // ====== VR SOBRE EL PEDESTAL ======
         {
             lightingShader.Use();
             GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model");
             glm::mat4 m(1.0f);
-            m = glm::translate(m, glm::vec3(0.0f, FLOOR_Y + LIFT, -2.0f));
-            m = glm::rotate(m, glm::radians(180.0f), glm::vec3(0, 1, 0));
-            m = glm::scale(m, glm::vec3(22.0f)); // escala solicitada
+            m = glm::translate(m, VR_POS);
+            m = glm::rotate(m, glm::radians(VR_ROT_DEG), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(15.0f)); // tu escala
             glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
             vr.Draw(lightingShader);
         }
+
 
         // ====== PLACA (backplate + glow) ======
         {
@@ -634,22 +650,27 @@ int main() {
             glUniformMatrix4fv(cView, 1, GL_FALSE, glm::value_ptr(view));
             glUniformMatrix4fv(cProj, 1, GL_FALSE, glm::value_ptr(projection));
 
+            // Backplate oscuro, detrás del rótulo
             glUniform3f(cColor, 0.05f, 0.05f, 0.05f);
             glm::mat4 back(1.0f);
-            back = glm::translate(back, glm::vec3(0.0f, 1.40f, -2.10f));
+            back = glm::translate(back, glm::vec3(VR_POS.x, VR_POS.y - SIGN_DY, VR_POS.z + BACKPLATE_DZ));
+            back = glm::rotate(back, glm::radians(VR_ROT_DEG), glm::vec3(0, 1, 0));
             back = glm::scale(back, glm::vec3(1.20f, 0.28f, 0.05f));
             glUniformMatrix4fv(cModel, 1, GL_FALSE, glm::value_ptr(back));
             glBindVertexArray(lampVAO);
             glDrawArrays(GL_TRIANGLES, 0, 36);
 
+            // Glow fucsia, justo al frente del backplate
             glUniform3f(cColor, 0.85f, 0.20f, 0.95f);
             glm::mat4 glow(1.0f);
-            glow = glm::translate(glow, glm::vec3(0.0f, 1.40f, -2.03f));
+            glow = glm::translate(glow, glm::vec3(VR_POS.x, VR_POS.y - SIGN_DY, VR_POS.z - SIGN_DZ_FRONT));
+            glow = glm::rotate(glow, glm::radians(VR_ROT_DEG), glm::vec3(0, 1, 0));
             glow = glm::scale(glow, glm::vec3(1.10f, 0.20f, 0.02f));
             glUniformMatrix4fv(cModel, 1, GL_FALSE, glm::value_ptr(glow));
             glDrawArrays(GL_TRIANGLES, 0, 36);
             glBindVertexArray(0);
         }
+
 
         // ====== RÓTULO “VR ESTACIÓN” ======
         {
@@ -668,7 +689,8 @@ int main() {
             glUniform2f(qTile, 1.0f, 1.0f);
 
             glm::mat4 m(1.0f);
-            m = glm::translate(m, glm::vec3(0.0f, 1.40f, -2.01f));
+            m = glm::translate(m, glm::vec3(VR_POS.x, VR_POS.y - SIGN_DY, VR_POS.z - SIGN_DZ_FRONT));
+            m = glm::rotate(m, glm::radians(VR_ROT_DEG), glm::vec3(0, 1, 0));
             m = glm::scale(m, glm::vec3(1.00f, 0.18f, 1.0f));
             glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
 
@@ -699,10 +721,12 @@ int main() {
                 glUniformMatrix4fv(bonesLoc, (GLsizei)bones.size(), GL_FALSE, &bones[0][0][0]);
 
             glm::mat4 m(1.0f);
-            m = glm::translate(m, glm::vec3(0.0f, FLOOR_Y + LIFT, 2.5f));
-            m = glm::scale(m, glm::vec3(0.01f));
+            m = glm::translate(m, glm::vec3(-25.0f, FLOOR_Y + LIFT, 2.5f));        // mover en X
+            m = glm::rotate(m, glm::radians(45.0f), glm::vec3(0, 1, 0));           // girar sobre Y
+            m = glm::scale(m, glm::vec3(0.02f));
             glUniformMatrix4fv(sModelLoc, 1, GL_FALSE, glm::value_ptr(m));
             warrior.Draw(skinnedShader);
+
         }
 
         // ====== Cubo lámpara (debug) ======
