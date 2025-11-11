@@ -338,7 +338,7 @@ int main() {
     Model arc11((char*)"Models/petit.obj");
     Model arc12((char*)"Models/dkstatue.obj");
 
-    //Sala 2
+    //Sala 2F
     Model CuboBase1((char*)"Models/Sala2/Cubo/_1108054346_texture.obj");
     Model CuboBase2((char*)"Models/Sala2/Cubo/_1108054346_texture.obj");
     Model CuboBase3((char*)"Models/Sala2/Cubo/_1108054346_texture.obj");
@@ -354,7 +354,9 @@ int main() {
     Model vr((char*)"Models/sala3/VR_headset_with_two_m_1105231651_texture.obj");
     Model warrior((char*)"Models/sala3/Animation_Walking_withSkin.fbx");
     Model console((char*)"Models/sala3/Game_ready_3D_prop_a_1110065502_texture.obj");
-
+	Model controller((char*)"Models/sala3/Game_Controllers_Disp_1110071455_texture.obj");
+	Model yoda((char*)"Models/sala3/Animation_Alert_withSkin.fbx");
+	Model truper((char*)"Models/sala3/Animation_Forward_Roll_and_Fire_withSkin.fbx");
 
 
     // VAO cubo debug
@@ -664,77 +666,8 @@ int main() {
         }
 
 
-      
-        // ====== PEDESTAL (posición separada) ======
-        {
-            quadShader.Use();
-            GLint qModel = glGetUniformLocation(quadShader.Program, "model");
-            GLint qView = glGetUniformLocation(quadShader.Program, "view");
-            GLint qProj = glGetUniformLocation(quadShader.Program, "projection");
-            GLint qTex = glGetUniformLocation(quadShader.Program, "uTex");
-            GLint qTile = glGetUniformLocation(quadShader.Program, "uTiling");
-            glUniformMatrix4fv(qView, 1, GL_FALSE, glm::value_ptr(view));
-            glUniformMatrix4fv(qProj, 1, GL_FALSE, glm::value_ptr(projection));
-            glUniform1i(qTex, 0);
-            glUniform2f(qTile, 2.0f, 2.0f);
 
-            glm::mat4 m(1.0f);
-            m = glm::translate(m, PEDESTAL_POS);
-            m = glm::rotate(m, glm::radians(PEDESTAL_YAW), glm::vec3(0, 1, 0));
-            m = glm::scale(m, PEDESTAL_SCALE);
-            glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texPedestal);
-            glBindVertexArray(pedVAO);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-            glBindVertexArray(0);
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
-
-        // ====== FLECHAS SOBRE EL PISO (posición separada) ======
-        {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            quadShader.Use();
-            GLint qModel = glGetUniformLocation(quadShader.Program, "model");
-            GLint qView = glGetUniformLocation(quadShader.Program, "view");
-            GLint qProj = glGetUniformLocation(quadShader.Program, "projection");
-            GLint qTex = glGetUniformLocation(quadShader.Program, "uTex");
-            GLint qTile = glGetUniformLocation(quadShader.Program, "uTiling");
-            glUniformMatrix4fv(qView, 1, GL_FALSE, glm::value_ptr(view));
-            glUniformMatrix4fv(qProj, 1, GL_FALSE, glm::value_ptr(projection));
-            glUniform1i(qTex, 0);
-            glUniform2f(qTile, ARROWS_TILING.x, ARROWS_TILING.y);
-
-            glm::mat4 m(1.0f);
-            m = glm::translate(m, ARROWS_POS);
-            m = glm::rotate(m, glm::radians(-90.0f), glm::vec3(1, 0, 0));
-            m = glm::rotate(m, glm::radians(ARROWS_YAW), glm::vec3(0, 0, 1));
-            glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texArrows);
-            glBindVertexArray(quadVAO);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-            glBindVertexArray(0);
-            glBindTexture(GL_TEXTURE_2D, 0);
-
-            glDisable(GL_BLEND);
-        }
-
-        // ====== VR HEADSET (posición separada) ======
-        {
-            lightingShader.Use();
-            GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model");
-            glm::mat4 m(1.0f);
-            m = glm::translate(m, VR_HEADSET_POS);
-            m = glm::rotate(m, glm::radians(VR_HEADSET_YAW), glm::vec3(0, 1, 0));
-            m = glm::scale(m, glm::vec3(VR_HEADSET_SCL));
-            glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
-            vr.Draw(lightingShader);
-        }
+        
 
 
 
@@ -820,47 +753,7 @@ int main() {
 
         //termina sala 2
 
-        // ====== BACKPLATE ======
-        {
-            colorShader.Use();
-            GLint cModel = glGetUniformLocation(colorShader.Program, "model");
-            GLint cView = glGetUniformLocation(colorShader.Program, "view");
-            GLint cProj = glGetUniformLocation(colorShader.Program, "projection");
-            GLint cColor = glGetUniformLocation(colorShader.Program, "uColor");
-            glUniformMatrix4fv(cView, 1, GL_FALSE, glm::value_ptr(view));
-            glUniformMatrix4fv(cProj, 1, GL_FALSE, glm::value_ptr(projection));
-
-            glUniform3f(cColor, 0.05f, 0.05f, 0.05f);
-            glm::mat4 back(1.0f);
-            back = glm::translate(back, BACK_POS);
-            back = glm::rotate(back, glm::radians(BACK_YAW), glm::vec3(0, 1, 0));
-            back = glm::scale(back, BACK_SCALE);
-            glUniformMatrix4fv(cModel, 1, GL_FALSE, glm::value_ptr(back));
-            glBindVertexArray(lampVAO);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-            glBindVertexArray(0);
-        }
-
-        // ====== GLOW ======
-        {
-            colorShader.Use();
-            GLint cModel = glGetUniformLocation(colorShader.Program, "model");
-            GLint cView = glGetUniformLocation(colorShader.Program, "view");
-            GLint cProj = glGetUniformLocation(colorShader.Program, "projection");
-            GLint cColor = glGetUniformLocation(colorShader.Program, "uColor");
-            glUniformMatrix4fv(cView, 1, GL_FALSE, glm::value_ptr(view));
-            glUniformMatrix4fv(cProj, 1, GL_FALSE, glm::value_ptr(projection));
-
-            glUniform3f(cColor, 0.85f, 0.20f, 0.95f);
-            glm::mat4 glow(1.0f);
-            glow = glm::translate(glow, GLOW_POS);
-            glow = glm::rotate(glow, glm::radians(GLOW_YAW), glm::vec3(0, 1, 0));
-            glow = glm::scale(glow, GLOW_SCALE);
-            glUniformMatrix4fv(cModel, 1, GL_FALSE, glm::value_ptr(glow));
-            glBindVertexArray(lampVAO);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-            glBindVertexArray(0);
-        }
+        
 
         // ====== RÓTULO “VR ESTACIÓN” ======
         {
@@ -898,6 +791,55 @@ int main() {
             glDisable(GL_BLEND);
         }
 
+
+
+        //Sala 3
+
+
+        // ====== FLECHAS SOBRE EL PISO (posición separada) ======
+        {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            quadShader.Use();
+            GLint qModel = glGetUniformLocation(quadShader.Program, "model");
+            GLint qView = glGetUniformLocation(quadShader.Program, "view");
+            GLint qProj = glGetUniformLocation(quadShader.Program, "projection");
+            GLint qTex = glGetUniformLocation(quadShader.Program, "uTex");
+            GLint qTile = glGetUniformLocation(quadShader.Program, "uTiling");
+            glUniformMatrix4fv(qView, 1, GL_FALSE, glm::value_ptr(view));
+            glUniformMatrix4fv(qProj, 1, GL_FALSE, glm::value_ptr(projection));
+            glUniform1i(qTex, 0);
+            glUniform2f(qTile, ARROWS_TILING.x, ARROWS_TILING.y);
+
+            glm::mat4 m(1.0f);
+            m = glm::translate(m, ARROWS_POS);
+            m = glm::rotate(m, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+            m = glm::rotate(m, glm::radians(ARROWS_YAW), glm::vec3(0, 0, 1));
+            glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texArrows);
+            glBindVertexArray(quadVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            glBindVertexArray(0);
+            glBindTexture(GL_TEXTURE_2D, 0);
+
+            glDisable(GL_BLEND);
+        }
+
+        // ====== VR HEADSET (posición separada) ======
+        {
+            lightingShader.Use();
+            GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model");
+            glm::mat4 m(1.0f);
+            m = glm::translate(m, VR_HEADSET_POS);
+            m = glm::rotate(m, glm::radians(VR_HEADSET_YAW), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(VR_HEADSET_SCL));
+            glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
+            vr.Draw(lightingShader);
+        }
+
         // ====== Guerrero skinned ======
         skinnedShader.Use();
         GLint sModelLoc = glGetUniformLocation(skinnedShader.Program, "model");
@@ -921,6 +863,44 @@ int main() {
             warrior.Draw(skinnedShader);
         }
 
+        // ====== Yoda animacion ======
+        skinnedShader.Use();
+        
+        {
+            double t = glfwGetTime() - t0;
+            yoda.UpdateAnimation(t);
+            std::vector<glm::mat4> bones; yoda.GetBoneMatrices(bones, 100);
+            GLint bonesLoc = glGetUniformLocation(skinnedShader.Program, "bones");
+            if (bonesLoc >= 0 && !bones.empty())
+                glUniformMatrix4fv(bonesLoc, (GLsizei)bones.size(), GL_FALSE, &bones[0][0][0]);
+
+            glm::mat4 m(1.0f);
+            m = glm::translate(m, glm::vec3(-25.0f, FLOOR_Y + LIFT, 13.0f));
+            m = glm::rotate(m, glm::radians(45.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(0.02f));
+            glUniformMatrix4fv(sModelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            yoda.Draw(skinnedShader);
+        }
+
+        // ====== truper animacion ======
+        skinnedShader.Use();
+
+        {
+            double t = glfwGetTime() - t0;
+            truper.UpdateAnimation(t);
+            std::vector<glm::mat4> bones; truper.GetBoneMatrices(bones, 100);
+            GLint bonesLoc = glGetUniformLocation(skinnedShader.Program, "bones");
+            if (bonesLoc >= 0 && !bones.empty())
+                glUniformMatrix4fv(bonesLoc, (GLsizei)bones.size(), GL_FALSE, &bones[0][0][0]);
+
+            glm::mat4 m(1.0f);
+            m = glm::translate(m, glm::vec3(-25.0f, FLOOR_Y + LIFT, 17.0f));
+            m = glm::rotate(m, glm::radians(45.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(0.02f));
+            glUniformMatrix4fv(sModelLoc, 1, GL_FALSE, glm::value_ptr(m));
+           truper.Draw(skinnedShader);
+        }
+
         // ====== game (prop de sala) — CORREGIDO translate ======
         {
             lightingShader.Use(); GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model"); glm::mat4 m(1.0f); // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso 
@@ -937,6 +917,17 @@ int main() {
             m = glm::scale(m, glm::vec3(2.0f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m)); 
             console.Draw(lightingShader); 
         }
+
+        {
+            lightingShader.Use(); GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model"); glm::mat4 m(1.0f); // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso 
+            m = glm::translate(m, glm::vec3(-20.0f, 5.0f, 13.0f));
+            m = glm::rotate(m, glm::radians(360.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(2.0f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
+            controller.Draw(lightingShader);
+        }
+
+
+
 
         // ====== Cubo lámpara (debug) ======
         lampShader.Use();
