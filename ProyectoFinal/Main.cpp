@@ -321,19 +321,23 @@ int main() {
     glUniform1i(glGetUniformLocation(skyShader.Program, "skybox"), 0);
 
     // Modelos
+
+    //Modelo de la galeria
+    Model escenario((char*)"Models/wip-gallery-v0003/source/GalleryModel_v0003/GalleryModel_v0007.obj");
+
+    //Sala 1
     Model arc1((char*)"Models/arcade_machine.obj");
     Model arc2((char*)"Models/game_machine_0000001.obj");
     Model arc3((char*)"Models/Super_Famicom_Console_1105070442_texture.obj");
     Model arc4((char*)"Models/GameBoy_1105065316_texture.obj");
     Model arc5((char*)"Models/Atari_Console_Classic_1105064245_texture.obj");
-    Model arc6((char*)"Models/Floating_Hat_Table_1106092111_texture.obj");
     Model arc7((char*)"Models/Hay_un_cuadro_de_pint_1106084744_texture.obj");
-    Model arc8((char*)"Models/Emerald_Adventure_Gam_1106073057_texture.obj");
-    Model arc9((char*)"Models/Pac_Man_Arcade_Game_S_1106071050_texture.obj");
-    Model arc10((char*)"Models/Retro_Gaming_Classic_1106070225_texture.obj");
+    Model arc8((char*)"Models/bench.obj");
+    Model arc9((char*)"Models/pacman_model.obj");
+    Model arc10((char*)"Models/mario_model.obj");
+    Model arc11((char*)"Models/petit.obj");
+    Model arc12((char*)"Models/dkstatue.obj");
 
-    
-    Model escenario((char*)"Models/wip-gallery-v0003/source/GalleryModel_v0003/GalleryModel_v0007.obj");
     //Sala 2
     Model CuboBase1((char*)"Models/Sala2/Cubo/_1108054346_texture.obj");
     Model CuboBase2((char*)"Models/Sala2/Cubo/_1108054346_texture.obj");
@@ -511,16 +515,156 @@ int main() {
             escenario.Draw(lightingShader);
         }
 
-        // Son mis modelos de la sala 1
+        // Son los modelos de la sala 1
+
+        // Maquina de arcade roja
         {
             glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(-27.0f, FLOOR_Y + LIFT, 29.0f));
-            m = glm::rotate(m, glm::radians(25.0f), glm::vec3(0, 1, 0));
+            m = glm::translate(m, glm::vec3(-23.0f, FLOOR_Y + LIFT, 29.0f));
             m = glm::scale(m, glm::vec3(1.1f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             arc1.Draw(lightingShader);
         }
 
+		// Maquina de arcade azul
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-19.0f, FLOOR_Y + LIFT, 29.0f));
+            m = glm::scale(m, glm::vec3(0.07f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            arc2.Draw(lightingShader);
+        }
+
+		// Super Nintendo
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-29.0f, FLOOR_Y + 3.29f, 32.0f));
+            m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(1.1f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            arc3.Draw(lightingShader);
+        }
+
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-29.0f, FLOOR_Y + 2.1, 32.0f));
+            m = glm::scale(m, glm::vec3(0.9f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            CuboBase1.Draw(lightingShader);
+        }
+
+		// GameBoy
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-29.0f, FLOOR_Y + 3.9f, 36.0f));
+            m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(0.9f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            arc4.Draw(lightingShader);
+        }
+
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-29.0f, FLOOR_Y + 2.1, 36.0f));
+            m = glm::scale(m, glm::vec3(0.9f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            CuboBase1.Draw(lightingShader);
+        }
+
+		// Atari
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-18.0f, FLOOR_Y + 3.5, 49.0f));
+            m = glm::rotate(m, glm::radians(25.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(1.1f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            arc5.Draw(lightingShader);
+        }
+
+        // Mesa blanca
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-18.0f, FLOOR_Y + 2.1, 49.0f));
+            m = glm::scale(m, glm::vec3(0.9f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            CuboBase1.Draw(lightingShader);
+        }
+
+        // Atari con television
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-29.0f, FLOOR_Y + 3.32, 28.0f));
+            m = glm::rotate(m, glm::radians(25.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(1.1f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            arc7.Draw(lightingShader);
+        }
+
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-29.0f, FLOOR_Y + 2.1, 28.0f));
+            m = glm::scale(m, glm::vec3(0.9f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            CuboBase1.Draw(lightingShader);
+        }
+
+        // Banca retro
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-24.0f, FLOOR_Y + 2.0, 39.0f));
+            m = glm::rotate(m, glm::radians(180.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(1.6f, 2.0f, 1.5f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            arc8.Draw(lightingShader);
+        }
+
+        //Pacman
+
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-19.5f, FLOOR_Y + LIFT, 55.0f));
+            m = glm::rotate(m, glm::radians(180.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(0.3f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            arc9.Draw(lightingShader);
+        }
+
+        //Mario Bros
+
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-26.0f, FLOOR_Y + LIFT, 54.0f));
+            m = glm::rotate(m, glm::radians(155.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(0.03f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            arc10.Draw(lightingShader);
+        }
+
+
+        // Fantasmita
+
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-29.0f, FLOOR_Y + 3.0f, 50.0f));
+            m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(0.8f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            arc11.Draw(lightingShader);
+        }
+
+        // Estatua Donkey Kong
+
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-27.0f, FLOOR_Y + LIFT, 45.0f));
+            m = glm::rotate(m, glm::radians(25.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(0.2f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            arc12.Draw(lightingShader);
+        }
+
+
+      
         // ====== PEDESTAL (posición separada) ======
         {
             quadShader.Use();
@@ -591,9 +735,6 @@ int main() {
             glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
             vr.Draw(lightingShader);
         }
-
-        //sala 2
-
 
 
 
