@@ -658,7 +658,6 @@ int main() {
 
         // Son los modelos de la sala 1
 
-        // Maquina de arcade roja
         {
             glm::mat4 m(1);
             m = glm::translate(m, glm::vec3(-23.0f, FLOOR_Y + LIFT, 29.0f));
@@ -1073,12 +1072,6 @@ int main() {
             glUniformMatrix4fv(sModelLoc, 1, GL_FALSE, glm::value_ptr(m));
             link.Draw(skinnedShader);
         }
-
-
-
-
-
-
 
         // ====== game (prop de sala) — CORREGIDO translate ======
         {
