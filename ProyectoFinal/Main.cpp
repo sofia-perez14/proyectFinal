@@ -275,8 +275,8 @@ float skyboxVertices[] = {
 // anim/delta
 float rotBall = 0.0f; bool AnimBall = false; bool AnimDog = false; float rotDog = 0.0f;
 int dogAnim = 0; float FLegs = 0, RLegs = 0, head = 0, tail = 0; glm::vec3 dogPos(0); float dogRot = 0; bool step = false; float pikachuTime = 0.0f;
-bool pikachuAnim = false; float butterflyTime = 0.0f;
-bool butterflyAnim = false; float crashTime = 0.0f;
+bool pikachuAnim = false; bool toadAnim = false;
+float toadTime = 0.0f; float crashTime = 0.0f;
 bool crashAnim = false; float consoleRotation = 0.0f;
 float limite = 2.2f;
 GLfloat deltaTime = 0.0f, lastFrame = 0.0f;
@@ -390,6 +390,8 @@ int main() {
     Model XboxLogo((char*)"Models/Sala2/XboxLogo/Screenshot_2025_11_07_1108045114_texture.obj");
     Model NswitchLogo((char*)"Models/Sala2/NintendoLogo/_1108052044_texture.obj");
     Model PS5Logo((char*)"Models/Sala2/PlayStationLogo/PS_1108045851_texture.obj");
+    Model xboxControl("Models/Sala2/xboxcco/source/xboxcco/xboxcco/xboxcc.obj");
+    Model ps5Control("Models/Sala2/PS5C/_1111070337_texture_obj/_1111070337_texture.obj");
 
 
              // Modelos de Pikachu
@@ -397,10 +399,11 @@ int main() {
         Model banquito("Models/Pikachu/banquito.obj");
         Model cola("Models/Pikachu/Cola.obj");
 
-        // Modelos de Mariposa
-        Model butterflyCuerpo("Models/Mariposa/CuerpoButterfly.obj");
-        Model butterflyAlaDer("Models/Mariposa/AlaDerButterfly.obj");
-        Model butterflyAlaIzq("Models/Mariposa/AlaIzqButterflyobj.obj");
+        // Modelos de Toad
+        Model toadCuerpo((char*)"Models/Sala2/Toad/toad_cuerpo.obj");
+        Model toadBrazoIzq((char*)"Models/Sala2/Toad/toad_b_izq.obj");
+        Model toadBrazoDer((char*)"Models/Sala2/Toad/toad_b_der.obj");
+
 
 
 
@@ -813,7 +816,7 @@ int main() {
 // Cubo base 1
         {
             glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT, 3.0f));
+            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT + 1.2f - 0.55f, 3.0f));
             m = glm::scale(m, glm::vec3(0.8f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             CuboBase1.Draw(lightingShader);
@@ -821,7 +824,7 @@ int main() {
         // Cubo base 2
         {
             glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT, 15.0f));
+            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT + 1.2f - 0.55f, 15.0f));
             m = glm::scale(m, glm::vec3(0.8f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             CuboBase2.Draw(lightingShader);
@@ -829,7 +832,7 @@ int main() {
         // Cubo base 3
         {
             glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT, 26.0f));
+            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT + 1.2f - 0.55f, 26.0f));
             m = glm::scale(m, glm::vec3(0.8f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             CuboBase3.Draw(lightingShader);
@@ -837,17 +840,28 @@ int main() {
         // Xbox SX - con rotación
         {
             glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT + 1.30f, 3.0f));
+            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT + 1.30f+1.2f - 0.55f, 3.0f));
             m = glm::rotate(m, glm::radians(consoleRotation), glm::vec3(0, 1, 0)); // Rotación sobre Y
             m = glm::scale(m, glm::vec3(0.5f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             xboxSX.Draw(lightingShader);
         }
+        // Control Xbox en CuboBase1
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(5.5f, FLOOR_Y + LIFT + 2.5f - 0.95f, 3.6f));
+            m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            m = glm::rotate(m, glm::radians(-80.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            m = glm::scale(m, glm::vec3(0.9f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            xboxControl.Draw(lightingShader);
+        }
+
 
         // Switch - con rotación
         {
             glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT + 1.10f, 15.0f));
+            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT + 1.10f + 1.2f - 0.55f, 15.0f));
             m = glm::rotate(m, glm::radians(consoleRotation), glm::vec3(0, 1, 0)); // Rotación sobre Y
             m = glm::scale(m, glm::vec3(0.5f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
@@ -857,11 +871,22 @@ int main() {
         // PS5 - con rotación
         {
             glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT + 1.40f, 26.0f));
+            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT + 1.40f + 1.2f -0.62f, 26.0f));
             m = glm::rotate(m, glm::radians(consoleRotation), glm::vec3(0, 1, 0)); // Rotación sobre Y
             m = glm::scale(m, glm::vec3(0.5f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             PS5.Draw(lightingShader);
+        }
+
+        // Control PS5 en CuboBase3
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(5.4f, FLOOR_Y + LIFT + 2.5f - 0.95f, 26.5f));
+            m = glm::rotate(m, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            m = glm::rotate(m, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            m = glm::scale(m, glm::vec3(0.25f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            ps5Control.Draw(lightingShader);
         }
 
 
@@ -1220,121 +1245,113 @@ int main() {
         }
 
 
-
-        // ===== ANIMACIÓN MARIPOSA VOLANDO EN CÍRCULO =====
-        glm::vec3 butterflyCenter(10.0f, FLOOR_Y + LIFT + 3.5f, 15.0f);
-        float butterflyRadius = 2.0f; // Radio del círculo
-
-        // Movimiento circular (posición en el círculo)
-        float angle = butterflyTime * 0.5f; // Velocidad de rotación
-        glm::vec3 butterflyPos;
-        butterflyPos.x = butterflyCenter.x + butterflyRadius * cos(angle);
-        butterflyPos.y = butterflyCenter.y + sin(butterflyTime * 2.0f) * 0.3f; // Oscilación vertical
-        butterflyPos.z = butterflyCenter.z + butterflyRadius * sin(angle);
-
-        // Ángulo de orientación (mira hacia donde se mueve)
-        float butterflyYaw = angle + glm::radians(90.0f);
-
-        // Movimiento de alas (aleteo)
-        float wingFlap = glm::sin(butterflyTime * 8.0f) * 30.0f; // Aleteo rápido
-
+        // ===== TOAD CON ANIMACIÓN POR KEYFRAMES =====
         lightingShader.Use();
-        GLint modelLocButterfly = glGetUniformLocation(lightingShader.Program, "model");
 
- 
-
-     
-        // Dibujar cuerpo de mariposa
-        {
-            glm::mat4 m(1);
-            m = glm::translate(m, butterflyPos+0.3f);
-            m = glm::rotate(m, butterflyYaw, glm::vec3(0, 1, 0));
-            m = glm::scale(m, glm::vec3(0.2f));
-            glUniformMatrix4fv(modelLocButterfly, 1, GL_FALSE, glm::value_ptr(m));
-            butterflyCuerpo.Draw(lightingShader);
-        }
-
-        // Dibujar ala derecha - USA butterflyPos
-        {
-            glm::mat4 m(1);
-            m = glm::translate(m, butterflyPos);  // MISMA posición que el cuerpo
-            m = glm::rotate(m, butterflyYaw, glm::vec3(0, 1, 0));
-            m = glm::scale(m, glm::vec3(0.2f));
-            m = glm::rotate(m, glm::radians(wingFlap), glm::vec3(0, 0, 1));
-            glUniformMatrix4fv(modelLocButterfly, 1, GL_FALSE, glm::value_ptr(m));
-            butterflyAlaDer.Draw(lightingShader);
-        }
-
-        // Dibujar ala izquierda - USA butterflyPos
-        {
-            glm::mat4 m(1);
-            m = glm::translate(m, butterflyPos);  // MISMA posición que el cuerpo
-            m = glm::rotate(m, butterflyYaw, glm::vec3(0, 1, 0));
-            m = glm::scale(m, glm::vec3(0.2f));
-            m = glm::rotate(m, glm::radians(wingFlap), glm::vec3(0, 0, 1));
-            glUniformMatrix4fv(modelLocButterfly, 1, GL_FALSE, glm::value_ptr(m));
-            butterflyAlaIzq.Draw(lightingShader);
-        }
+        glm::vec3 toadBasePos(10.0f, FLOOR_Y + LIFT, 15.0f);
 
 
 
+        float armRotLeft = 70.0f, armRotRight = 70.0f;
+        float armWaveLeft = 0.0f, armWaveRight = 0.0f;
+        float bodyY = 0.0f, bodyRotY = 0.0f;
 
-        // ===== ANIMACIÓN CRASH BANDICOOT - RECTÁNGULO =====
-        if (crashAnim) {
-            // Puntos del rectángulo en orden correcto
-            glm::vec3 corners[4] = {
-                glm::vec3(7.5f, FLOOR_Y + LIFT, 15.0f),    // Esquina 1
-                glm::vec3(12.15f, FLOOR_Y + LIFT, 15.0f),  // Esquina 2
-                glm::vec3(12.15f, FLOOR_Y + LIFT, 26.0f),  // Esquina 3
-                glm::vec3(7.5f, FLOOR_Y + LIFT, 26.0f)     // Esquina 4
-            };
+        if (toadAnim) {
+            float t = toadTime;
 
-            // Duración total del circuito (20 segundos)
-            float totalDuration = 20.0f;
-            float segmentDuration = totalDuration / 4.0f; // 5 segundos por lado
+            armWaveLeft = sin(t * 8.0f) * 25.0f;
+            armWaveRight = sin(t * 8.0f + 0.5f) * 25.0f;
 
-            // Normalizar tiempo para loop continuo
-            float loopTime = fmod(crashTime, totalDuration);
-
-            // Calcular en qué segmento estamos (0, 1, 2, 3)
-            int segment = int(loopTime / segmentDuration);
-            if (segment > 3) segment = 3; // Seguridad
-
-            // Tiempo local dentro del segmento actual (0.0 a 1.0)
-            float localTime = (loopTime - (segment * segmentDuration)) / segmentDuration;
-
-            // Siguiente esquina (con wrap-around)
-            int nextCorner = (segment + 1) % 4;
-
-            // Interpolar posición
-            glm::vec3 crashPos = corners[segment] + (corners[nextCorner] - corners[segment]) * localTime;
-
-            // Calcular dirección y ángulo de rotación
-            glm::vec3 direction = glm::normalize(corners[nextCorner] - corners[segment]);
-            float crashYaw = atan2(direction.x, direction.z);
-
-            // Renderizar Crash
-            skinnedShader.Use();
-            GLint sModelLocCrash = glGetUniformLocation(skinnedShader.Program, "model");
-
-            // Actualizar animación del FBX
-            double t = glfwGetTime();
-            crash.UpdateAnimation(t);
-            std::vector<glm::mat4> bones;
-            crash.GetBoneMatrices(bones, 100);
-            GLint bonesLoc = glGetUniformLocation(skinnedShader.Program, "bones");
-            if (bonesLoc >= 0 && !bones.empty()) {
-                glUniformMatrix4fv(bonesLoc, GLsizei(bones.size()), GL_FALSE, &bones[0][0][0]);
+            if (t < 1.5f) {
+                float progress = t / 1.5f;
+                armRotLeft = glm::mix(70.0f, 140.0f, progress);
+                armRotRight = glm::mix(70.0f, 140.0f, progress);
+                bodyY = sin(progress * 6.28f * 2.0f) * 0.1f;
+            }
+            else if (t < 2.5f) {
+                float progress = (t - 1.5f) / 1.0f;
+                armRotLeft = 140.0f;
+                armRotRight = 140.0f;
+                bodyY = sin(progress * 3.14159f) * 1.2f;
+                bodyRotY = progress * 360.0f;
+            }
+            else if (t < 3.0f) {
+                float progress = (t - 2.5f) / 0.5f;
+                armRotLeft = glm::mix(140.0f, 110.0f, progress);
+                armRotRight = glm::mix(140.0f, 110.0f, progress);
+                bodyY = 0.0f;
+                bodyRotY = 360.0f;
+            }
+            else {
+                float progress = (t - 3.0f) / 3.0f;
+                armRotLeft = 110.0f + sin(progress * 6.28f * 2.0f) * 15.0f;
+                armRotRight = 110.0f + sin(progress * 6.28f * 2.0f) * 15.0f;
+                bodyY = sin(progress * 6.28f * 4.0f) * 0.08f;
+                bodyRotY = 360.0f;
             }
 
-            // Matriz de transformación
-            glm::mat4 mCrash(1.0f);
-            mCrash = glm::translate(mCrash, crashPos);
-            mCrash = glm::rotate(mCrash, crashYaw, glm::vec3(0, 1, 0));
-            mCrash = glm::scale(mCrash, glm::vec3(0.02f));
-            glUniformMatrix4fv(sModelLocCrash, 1, GL_FALSE, glm::value_ptr(mCrash));
-            crash.Draw(skinnedShader);
         }
+
+        glm::vec3 toadPos = toadBasePos + glm::vec3(0, bodyY, 0);
+
+        glm::mat4 mToadCuerpo(1.0f);
+        mToadCuerpo = glm::translate(mToadCuerpo, toadPos);
+        mToadCuerpo = glm::rotate(mToadCuerpo, glm::radians(bodyRotY + 90.0f), glm::vec3(0, 1, 0));
+        mToadCuerpo = glm::scale(mToadCuerpo, glm::vec3(0.28f));
+
+        GLint toadModelLoc = glGetUniformLocation(lightingShader.Program, "model");
+        glUniformMatrix4fv(toadModelLoc, 1, GL_FALSE, glm::value_ptr(mToadCuerpo));
+        toadCuerpo.Draw(lightingShader);
+
+        glm::mat4 mToadBrazoIzq(1.0f);
+        mToadBrazoIzq = glm::translate(mToadBrazoIzq, toadPos);
+        mToadBrazoIzq = glm::rotate(mToadBrazoIzq, glm::radians(bodyRotY + 90.0f), glm::vec3(0, 1, 0));
+        mToadBrazoIzq = glm::translate(mToadBrazoIzq, glm::vec3(0.4f, 0.6f, 0));
+        mToadBrazoIzq = glm::rotate(mToadBrazoIzq, glm::radians(-(armRotLeft + armWaveLeft)), glm::vec3(1, 0, 0));
+        mToadBrazoIzq = glm::translate(mToadBrazoIzq, glm::vec3(-0.4f, 0.0f, 0));
+        mToadBrazoIzq = glm::scale(mToadBrazoIzq, glm::vec3(0.35f));
+
+        glUniformMatrix4fv(toadModelLoc, 1, GL_FALSE, glm::value_ptr(mToadBrazoIzq));
+        toadBrazoIzq.Draw(lightingShader);
+        
+        glm::mat4 mToadBrazoDer(1.0f);
+        mToadBrazoDer = glm::translate(mToadBrazoDer, toadPos);
+        mToadBrazoDer = glm::rotate(mToadBrazoDer, glm::radians(bodyRotY + 90.0f), glm::vec3(0, 1, 0));
+        mToadBrazoDer = glm::translate(mToadBrazoDer, glm::vec3(-0.4f, 0.6f, 0));
+        mToadBrazoDer = glm::rotate(mToadBrazoDer, glm::radians(-(armRotRight + armWaveRight)), glm::vec3(1, 0, 0));
+        mToadBrazoDer = glm::translate(mToadBrazoDer, glm::vec3(0.4f, 0.0f, 0));
+        mToadBrazoDer = glm::scale(mToadBrazoDer, glm::vec3(0.35f));
+
+        glUniformMatrix4fv(toadModelLoc, 1, GL_FALSE, glm::value_ptr(mToadBrazoDer));
+        toadBrazoDer.Draw(lightingShader);
+
+
+
+        // ===== CRASH DE A A B CON ANIMACIÓN =====
+        float travelTime = 10.0f;
+        float t = fmod(crashTime, travelTime) / travelTime;
+        float crashX = 7.5f + (4.65f * t);
+
+        glm::vec3 crashPos(crashX, FLOOR_Y + LIFT, 26.0f);
+
+        skinnedShader.Use();
+        crash.UpdateAnimation(glfwGetTime());
+
+        std::vector<glm::mat4> bones(100, glm::mat4(1.0f));
+        crash.GetBoneMatrices(bones, 100);
+
+        GLint bonesLoc = glGetUniformLocation(skinnedShader.Program, "bones");
+        glUniformMatrix4fv(bonesLoc, 100, GL_FALSE, &bones[0][0][0]);
+
+        glm::mat4 mCrash(1.0f);
+        mCrash = glm::translate(mCrash, crashPos);
+        mCrash = glm::rotate(mCrash, 1.5708f, glm::vec3(0, 1, 0));
+        mCrash = glm::scale(mCrash, glm::vec3(0.02f));
+
+        GLint crashModelLoc = glGetUniformLocation(skinnedShader.Program, "model");
+        glUniformMatrix4fv(crashModelLoc, 1, GL_FALSE, glm::value_ptr(mCrash));
+
+        crash.Draw(skinnedShader);
 
 
         // ====== Cubo lámpara (debug) ======
@@ -1393,15 +1410,15 @@ void KeyCallback(GLFWwindow* window, int key, int, int action, int)
             keys[key] = true;
 
             // Activar animaciones con tecla K
-            if (key == GLFW_KEY_K) {
+            if (key == GLFW_KEY_K && action == GLFW_PRESS) {
+                // Activa/desactiva ambas animaciones de keyframes
                 pikachuAnim = !pikachuAnim;
-                butterflyAnim = !butterflyAnim;
-                if (pikachuAnim) pikachuTime = 0.0f;
-                if (butterflyAnim) butterflyTime = 0.0f;
-                std::cout << "Animaciones: " << (pikachuAnim ? "ON" : "OFF") << std::endl;
+                toadAnim = !toadAnim;
 
-
+                if (!pikachuAnim) pikachuTime = 0.0f;
+                if (!toadAnim) toadTime = 0.0f;
             }
+
 
             // Activar animación de Crash con tecla C
             if (key == GLFW_KEY_C) {
@@ -1426,33 +1443,32 @@ void Animation() {
     if (AnimDog) {
         rotDog -= 0.006f;
     }
+
     // Rotación continua de consolas
-    consoleRotation += 0.5f * deltaTime * 60.0f; // Velocidad ajustable
+    consoleRotation += 0.5f * deltaTime * 60.0f;
     if (consoleRotation > 360.0f) {
         consoleRotation -= 360.0f;
     }
+
     // Animación de Pikachu
     if (pikachuAnim) {
-        pikachuTime += 0.032f; // ~60fps
+        pikachuTime += 0.032f;
         if (pikachuTime > 5.0f) {
-            pikachuTime = 0.0f; // Loop
+            pikachuTime = 0.0f;
+        }
+    }
+    // Animación de Toad
+    if (toadAnim) {
+        toadTime += 0.016f;
+        if (toadTime > 6.0f) {
+            toadTime = 0.0f;
         }
     }
 
-    // Animación de Mariposa
-    if (butterflyAnim) {
-        butterflyTime += 0.016f; // Velocidad de animación
-        if (butterflyTime > 8.0f) {
-            butterflyTime = 0.0f; // Loop de 8 segundos
-        }
-
-        // Animación de Crash Bandicoot
-        if (crashAnim) {
-            crashTime += 0.016f; // 60fps
- 
-        }
+    // Animación de Crash Bandicoot 
+    if (crashAnim) {
+        crashTime += 0.016f;
     }
-
 }
 
 void MouseCallback(GLFWwindow*, double x, double y) {
