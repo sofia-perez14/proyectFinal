@@ -158,6 +158,43 @@ static bool WriteTextFile(const char* path, const char* src) {
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void MouseCallback(GLFWwindow* window, double xPos, double yPos);
 void DoMovement();
+// Estructura de keyframe
+struct Keyframe {
+    float time;
+    glm::vec3 position;
+    float rotation;
+};
+
+// Interpolación lineal entre keyframes
+glm::vec3 interpolatePosition(const std::vector<Keyframe>& keys, float t) {
+    if (keys.empty()) return glm::vec3(0.0f);
+    if (t <= keys[0].time) return keys[0].position;
+    if (t >= keys.back().time) return keys.back().position;
+
+    for (size_t i = 0; i < keys.size() - 1; i++) {
+        if (t >= keys[i].time && t <= keys[i + 1].time) {
+            float alpha = (t - keys[i].time) / (keys[i + 1].time - keys[i].time);
+            return glm::mix(keys[i].position, keys[i + 1].position, alpha);
+        }
+    }
+    return keys.back().position;
+}
+
+float interpolateRotation(const std::vector<Keyframe>& keys, float t) {
+    if (keys.empty()) return 0.0f;
+    if (t <= keys[0].time) return keys[0].rotation;
+    if (t >= keys.back().time) return keys.back().rotation;
+
+    for (size_t i = 0; i < keys.size() - 1; i++) {
+        if (t >= keys[i].time && t <= keys[i + 1].time) {
+            float alpha = (t - keys[i].time) / (keys[i + 1].time - keys[i].time);
+            return glm::mix(keys[i].rotation, keys[i + 1].rotation, alpha);
+        }
+    }
+    return keys.back().rotation;
+}
+
+
 void Animation();
 
 // ====== ESTADO GLOBAL ======
@@ -237,7 +274,10 @@ float skyboxVertices[] = {
 
 // anim/delta
 float rotBall = 0.0f; bool AnimBall = false; bool AnimDog = false; float rotDog = 0.0f;
-int dogAnim = 0; float FLegs = 0, RLegs = 0, head = 0, tail = 0; glm::vec3 dogPos(0); float dogRot = 0; bool step = false; float limite = 2.2f;
+int dogAnim = 0; float FLegs = 0, RLegs = 0, head = 0, tail = 0; glm::vec3 dogPos(0); float dogRot = 0; bool step = false; float pikachuTime = 0.0f;
+bool pikachuAnim = false; float butterflyTime = 0.0f;
+bool butterflyAnim = false; float consoleRotation = 0.0f;
+float limite = 2.2f;
 GLfloat deltaTime = 0.0f, lastFrame = 0.0f;
 
 // VAOs/VBOs
@@ -344,10 +384,23 @@ int main() {
     Model CuboBase3((char*)"Models/Sala2/Cubo/_1108054346_texture.obj");
     Model xboxSX((char*)"Models/Sala2/XboxSeriesX/_1106040925_texture.obj");
     Model Nswitch((char*)"Models/Sala2/nintendo-switch/_1106051703_texture.obj");
-    Model PS5((char*)"Models/Sala2/ps5/source/PS5/PS5.obj");
+    Model PS5((char*)"Models/Sala2/ps5/PS5/_1112073936_texture.obj");
     Model XboxLogo((char*)"Models/Sala2/XboxLogo/Screenshot_2025_11_07_1108045114_texture.obj");
     Model NswitchLogo((char*)"Models/Sala2/NintendoLogo/_1108052044_texture.obj");
     Model PS5Logo((char*)"Models/Sala2/PlayStationLogo/PS_1108045851_texture.obj");
+
+
+             // Modelos de Pikachu
+        Model pikachu("Models//Pikachu/Pikachu.obj");
+        Model banquito("Models/Pikachu/banquito.obj");
+        Model cola("Models/Pikachu/Cola.obj");
+
+        // Modelos de Mariposa
+        Model butterflyCuerpo("Models/Mariposa/CuerpoButterfly.obj");
+        Model butterflyAlaDer("Models/Mariposa/AlaDerButterfly.obj");
+        Model butterflyAlaIzq("Models/Mariposa/AlaIzqButterflyobj.obj");
+
+
 
     //Sala3 
     Model game((char*)"Models/sala3/Game_ready_3D_prop_a_1110045024_texture.obj");
@@ -516,6 +569,83 @@ int main() {
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
+        // ===== CONFIGURAR SPOTLIGHTS =====
+        // Spotlight 1: Xbox (VERDE)
+        {
+            glm::vec3 xboxLogoPos = glm::vec3(2.20f, FLOOR_Y + LIFT + 3.5f, 3.0f);
+            glm::vec3 xboxConsolePos = glm::vec3(5.0f, FLOOR_Y + LIFT + 1.30f, 3.0f);
+            glm::vec3 spotDir = glm::normalize(xboxConsolePos - xboxLogoPos);
+
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[0].position"),
+                xboxLogoPos.x, xboxLogoPos.y, xboxLogoPos.z);
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[0].direction"),
+                spotDir.x, spotDir.y, spotDir.z);
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[0].ambient"),
+                0.05f, 0.2f, 0.05f);
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[0].diffuse"),
+                0.2f, 1.0f, 0.2f);
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[0].specular"),
+                0.1f, 0.5f, 0.1f);
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[0].cutOff"),
+                glm::cos(glm::radians(12.5f)));
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[0].outerCutOff"),
+                glm::cos(glm::radians(17.5f)));
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[0].constant"), 1.0f);
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[0].linear"), 0.09f);
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[0].quadratic"), 0.032f);
+        }
+
+        // Spotlight 2: Nintendo (ROJO)
+        {
+            glm::vec3 nintendoLogoPos = glm::vec3(2.20f, FLOOR_Y + LIFT + 3.5f, 15.0f);
+            glm::vec3 nintendoConsolePos = glm::vec3(5.0f, FLOOR_Y + LIFT + 1.10f, 15.0f);
+            glm::vec3 spotDir = glm::normalize(nintendoConsolePos - nintendoLogoPos);
+
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[1].position"),
+                nintendoLogoPos.x, nintendoLogoPos.y, nintendoLogoPos.z);
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[1].direction"),
+                spotDir.x, spotDir.y, spotDir.z);
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[1].ambient"),
+                0.2f, 0.05f, 0.05f);
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[1].diffuse"),
+                1.0f, 0.2f, 0.2f);
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[1].specular"),
+                0.5f, 0.1f, 0.1f);
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[1].cutOff"),
+                glm::cos(glm::radians(12.5f)));
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[1].outerCutOff"),
+                glm::cos(glm::radians(17.5f)));
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[1].constant"), 1.0f);
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[1].linear"), 0.09f);
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[1].quadratic"), 0.032f);
+        }
+
+        // Spotlight 3: PS5 (AZUL)
+        {
+            glm::vec3 ps5LogoPos = glm::vec3(2.20f, FLOOR_Y + LIFT + 3.5f, 26.0f);
+            glm::vec3 ps5ConsolePos = glm::vec3(5.0f, FLOOR_Y + LIFT + 0.90f, 26.0f);
+            glm::vec3 spotDir = glm::normalize(ps5ConsolePos - ps5LogoPos);
+
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[2].position"),
+                ps5LogoPos.x, ps5LogoPos.y, ps5LogoPos.z);
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[2].direction"),
+                spotDir.x, spotDir.y, spotDir.z);
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[2].ambient"),
+                0.05f, 0.05f, 0.2f);
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[2].diffuse"),
+                0.2f, 0.4f, 1.0f);
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[2].specular"),
+                0.1f, 0.2f, 0.5f);
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[2].cutOff"),
+                glm::cos(glm::radians(12.5f)));
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[2].outerCutOff"),
+                glm::cos(glm::radians(17.5f)));
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[2].constant"), 1.0f);
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[2].linear"), 0.09f);
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[2].quadratic"), 0.032f);
+        }
+        // ===== FIN SPOTLIGHTS =====
+                
         // Escenario
         {
             glm::mat4 m(1);
@@ -703,32 +833,36 @@ int main() {
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             CuboBase3.Draw(lightingShader);
         }
-        // Xbox SX
+        // Xbox SX - con rotación
         {
             glm::mat4 m(1);
             m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT + 1.30f, 3.0f));
+            m = glm::rotate(m, glm::radians(consoleRotation), glm::vec3(0, 1, 0)); // Rotación sobre Y
             m = glm::scale(m, glm::vec3(0.5f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             xboxSX.Draw(lightingShader);
         }
-        // Switch
+
+        // Switch - con rotación
         {
             glm::mat4 m(1);
             m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT + 1.10f, 15.0f));
+            m = glm::rotate(m, glm::radians(consoleRotation), glm::vec3(0, 1, 0)); // Rotación sobre Y
             m = glm::scale(m, glm::vec3(0.5f));
-            m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, 0));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             Nswitch.Draw(lightingShader);
         }
-        // PS5
+
+        // PS5 - con rotación
         {
             glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT + 0.90f, 26.0f));
+            m = glm::translate(m, glm::vec3(5.0f, FLOOR_Y + LIFT + 1.40f, 26.0f));
+            m = glm::rotate(m, glm::radians(consoleRotation), glm::vec3(0, 1, 0)); // Rotación sobre Y
             m = glm::scale(m, glm::vec3(0.5f));
-            m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, 0));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             PS5.Draw(lightingShader);
         }
+
 
 
         // XboxLogo
@@ -988,6 +1122,129 @@ int main() {
         }
 
 
+        // ===== ANIMACIÓN PIKACHU POR KEYFRAMES =====
+        // Keyframes de Pikachu (salto del banco)
+        std::vector<Keyframe> pikachuKeys = {
+     {0.0f,  glm::vec3(10.0f, FLOOR_Y + LIFT + 0.53f, 3.0f), 0.0f},      // Sentado EN el banco (mismo X,Z que banco, Y arriba)
+     {1.0f,  glm::vec3(10.0f, FLOOR_Y + LIFT + 1.1f, 3.0f), 0.0f},      // Sube (preparación)
+     {2.0f,  glm::vec3(10.0f, FLOOR_Y + LIFT + 1.7f, 4.0f), 20.0f},     // En el aire (apex) - salta adelante
+     {3.5f,  glm::vec3(10.0f, FLOOR_Y + LIFT + 0.4f, 5.0f), 0.0f},      // Aterriza adelante
+     {5.0f,  glm::vec3(10.0f, FLOOR_Y + LIFT - 0.12f, 5.0f), 0.0f}       // Reposo
+        };
+
+  
+
+
+
+
+        glm::vec3 pikachuPos = interpolatePosition(pikachuKeys, pikachuTime);
+        float pikachuRot = interpolateRotation(pikachuKeys, pikachuTime);
+
+        // Movimiento de la cola (oscilación sinusoidal)
+        float tailSwing = glm::sin(pikachuTime * 5.0f) * 30.0f;
+
+        lightingShader.Use();
+        GLint modelLocPika = glGetUniformLocation(lightingShader.Program, "model");
+
+        // Dibujar banco
+
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(10.0f, FLOOR_Y + LIFT + 0.2f, 3.0f)); // Subir un poco
+            m = glm::rotate(m, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+            m = glm::scale(m, glm::vec3(0.1f, 0.1f, 0.1f)); // Aumentar escala
+            glUniformMatrix4fv(modelLocPika, 1, GL_FALSE, glm::value_ptr(m));
+            banquito.Draw(lightingShader);
+        }
+
+
+
+        // Dibujar Pikachu (cuerpo principal)
+
+        {
+
+            
+                glm::mat4 m(1);
+                m = glm::translate(m, pikachuPos);
+                m = glm::rotate(m, glm::radians(0.0f + pikachuRot), glm::vec3(0, 1, 0)); // +90 grados extra
+                m = glm::rotate(m, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+                m = glm::scale(m, glm::vec3(0.15f));
+
+            glUniformMatrix4fv(modelLocPika, 1, GL_FALSE, glm::value_ptr(m));
+            pikachu.Draw(lightingShader);
+        }
+
+
+        // Dibujar cola con movimiento (adherida al cuerpo)
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, pikachuPos);
+            m = glm::rotate(m, glm::radians(0.0f + pikachuRot), glm::vec3(0, 1, 0)); // +90 grados extra
+            m = glm::rotate(m, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+            m = glm::translate(m, glm::vec3(0.0f, 0.05f, 0.25f)); // Cola más cerca del cuerpo (X reducido)
+            m = glm::rotate(m, glm::radians(tailSwing), glm::vec3(0, 0, 1));
+            m = glm::scale(m, glm::vec3(0.15f));
+            glUniformMatrix4fv(modelLocPika, 1, GL_FALSE, glm::value_ptr(m));
+            cola.Draw(lightingShader);
+        }
+
+
+
+        // ===== ANIMACIÓN MARIPOSA VOLANDO EN CÍRCULO =====
+        glm::vec3 butterflyCenter(10.0f, FLOOR_Y + LIFT + 3.5f, 15.0f);
+        float butterflyRadius = 2.0f; // Radio del círculo
+
+        // Movimiento circular (posición en el círculo)
+        float angle = butterflyTime * 0.5f; // Velocidad de rotación
+        glm::vec3 butterflyPos;
+        butterflyPos.x = butterflyCenter.x + butterflyRadius * cos(angle);
+        butterflyPos.y = butterflyCenter.y + sin(butterflyTime * 2.0f) * 0.3f; // Oscilación vertical
+        butterflyPos.z = butterflyCenter.z + butterflyRadius * sin(angle);
+
+        // Ángulo de orientación (mira hacia donde se mueve)
+        float butterflyYaw = angle + glm::radians(90.0f);
+
+        // Movimiento de alas (aleteo)
+        float wingFlap = glm::sin(butterflyTime * 8.0f) * 30.0f; // Aleteo rápido
+
+        lightingShader.Use();
+        GLint modelLocButterfly = glGetUniformLocation(lightingShader.Program, "model");
+
+ 
+
+     
+        // Dibujar cuerpo de mariposa
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, butterflyPos+0.3f);
+            m = glm::rotate(m, butterflyYaw, glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(0.2f));
+            glUniformMatrix4fv(modelLocButterfly, 1, GL_FALSE, glm::value_ptr(m));
+            butterflyCuerpo.Draw(lightingShader);
+        }
+
+        // Dibujar ala derecha - USA butterflyPos
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, butterflyPos);  // MISMA posición que el cuerpo
+            m = glm::rotate(m, butterflyYaw, glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(0.2f));
+            m = glm::rotate(m, glm::radians(wingFlap), glm::vec3(0, 0, 1));
+            glUniformMatrix4fv(modelLocButterfly, 1, GL_FALSE, glm::value_ptr(m));
+            butterflyAlaDer.Draw(lightingShader);
+        }
+
+        // Dibujar ala izquierda - USA butterflyPos
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, butterflyPos);  // MISMA posición que el cuerpo
+            m = glm::rotate(m, butterflyYaw, glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(0.2f));
+            m = glm::rotate(m, glm::radians(wingFlap), glm::vec3(0, 0, 1));
+            glUniformMatrix4fv(modelLocButterfly, 1, GL_FALSE, glm::value_ptr(m));
+            butterflyAlaIzq.Draw(lightingShader);
+        }
+
 
         // ====== Cubo lámpara (debug) ======
         lampShader.Use();
@@ -1034,11 +1291,62 @@ void DoMovement() {
     if (keys[GLFW_KEY_A] || keys[GLFW_KEY_LEFT])  camera.ProcessKeyboard(LEFT, deltaTime);
     if (keys[GLFW_KEY_D] || keys[GLFW_KEY_RIGHT]) camera.ProcessKeyboard(RIGHT, deltaTime);
 }
-void KeyCallback(GLFWwindow* window, int key, int, int action, int) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
-    if (key >= 0 && key < 1024) { if (action == GLFW_PRESS) keys[key] = true; else if (action == GLFW_RELEASE) keys[key] = false; }
+void KeyCallback(GLFWwindow* window, int key, int, int action, int)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+
+    if (key >= 0 && key < 1024)
+    {
+        if (action == GLFW_PRESS) {
+            keys[key] = true;
+
+            // Activar animaciones con tecla K
+            if (key == GLFW_KEY_K) {
+                pikachuAnim = !pikachuAnim;
+                butterflyAnim = !butterflyAnim;
+                if (pikachuAnim) pikachuTime = 0.0f;
+                if (butterflyAnim) butterflyTime = 0.0f;
+                std::cout << "Animaciones: " << (pikachuAnim ? "ON" : "OFF") << std::endl;
+            }
+
+        }
+        else if (action == GLFW_RELEASE) {
+            keys[key] = false;
+        }
+    }
 }
-void Animation() { if (AnimBall) rotBall += 0.04f; if (AnimDog) rotDog -= 0.006f; }
+
+void Animation() {
+    if (AnimBall) {
+        rotBall += 0.04f;
+    }
+    if (AnimDog) {
+        rotDog -= 0.006f;
+    }
+    // Rotación continua de consolas
+    consoleRotation += 0.5f * deltaTime * 60.0f; // Velocidad ajustable
+    if (consoleRotation > 360.0f) {
+        consoleRotation -= 360.0f;
+    }
+    // Animación de Pikachu
+    if (pikachuAnim) {
+        pikachuTime += 0.032f; // ~60fps
+        if (pikachuTime > 5.0f) {
+            pikachuTime = 0.0f; // Loop
+        }
+    }
+
+    // Animación de Mariposa
+    if (butterflyAnim) {
+        butterflyTime += 0.016f; // Velocidad de animación
+        if (butterflyTime > 8.0f) {
+            butterflyTime = 0.0f; // Loop de 8 segundos
+        }
+    }
+
+}
+
 void MouseCallback(GLFWwindow*, double x, double y) {
     if (firstMouse) { lastX = (float)x; lastY = (float)y; firstMouse = false; }
     float xo = (float)x - lastX, yo = lastY - (float)y; lastX = (float)x; lastY = (float)y; camera.ProcessMouseMovement(xo, yo);
