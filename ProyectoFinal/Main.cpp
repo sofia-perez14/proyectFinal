@@ -359,6 +359,13 @@ int main() {
 	Model truper((char*)"Models/sala3/Animation_Forward_Roll_and_Fire_withSkin.fbx");
 	Model wall((char*)"Models/sala3/wall_acoustic_pane_1112003419_texture.obj");
     Model ceiling((char*)"Models/sala3/ceiling_track_light__1112003755_texture.obj");
+    Model ceiling2((char*)"Models/sala3/ceiling_track_light__1112003755_texture.obj");
+    Model ceiling3((char*)"Models/sala3/ceiling_track_light__1112003755_texture.obj");
+	Model astro((char*)"Models/sala3/Animation_Agree_Gesture_withSkin.fbx");
+	Model kratos((char*)"Models/sala3/Animation_Axe_Spin_Attack_withSkin.fbx");
+	Model link((char*)"Models/sala3/Animation_Big_Wave_Hello_withSkin.fbx");
+    Model CuboBase4((char*)"Models/Sala2/Cubo/_1108054346_texture.obj");
+    Model CuboBase5((char*)"Models/Sala2/Cubo/_1108054346_texture.obj");
 
     // VAO cubo debug
     glGenVertexArrays(1, &lampVAO);
@@ -453,13 +460,13 @@ int main() {
 
     // =============================== 
     // AJUSTES RÁPIDOS — ESTACIÓN VR
-    // (MUEVE SOLO ESTOS VALORES)
+    // (MUEVE SOLO ESTOS VALORES)w
     // ===============================
 
     // Headset VR
-    glm::vec3 VR_HEADSET_POS = glm::vec3(-32.0f, 4.0f, -10.0f);
+    glm::vec3 VR_HEADSET_POS = glm::vec3(-32.0f, 4.5f, -13.0f);
     float     VR_HEADSET_YAW = 360.0f;   // grados sobre Y
-    float     VR_HEADSET_SCL = 15.0f;
+    float     VR_HEADSET_SCL = 10.0f;
 
     // Pedestal (para que "asiente" en el piso, usa Y = FLOOR_Y + (alto/2))
     glm::vec3 PEDESTAL_POS = glm::vec3(-32.0f, FLOOR_Y + 0.30f, -10.0f);
@@ -756,78 +763,12 @@ int main() {
 
         
 
-        // ====== RÓTULO “VR ESTACIÓN” ======
-        {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            quadShader.Use();
-            GLint qModel = glGetUniformLocation(quadShader.Program, "model");
-            GLint qView = glGetUniformLocation(quadShader.Program, "view");
-            GLint qProj = glGetUniformLocation(quadShader.Program, "projection");
-            GLint qTex = glGetUniformLocation(quadShader.Program, "uTex");
-            GLint qTile = glGetUniformLocation(quadShader.Program, "uTiling");
-            glUniformMatrix4fv(qView, 1, GL_FALSE, glm::value_ptr(view));
-            glUniformMatrix4fv(qProj, 1, GL_FALSE, glm::value_ptr(projection));
-            glUniform1i(qTex, 0);
-            glUniform2f(qTile, 1.0f, 1.0f);
-
-            // empuja el rótulo hacia su "forward" para despegarlo del muro
-            glm::vec3 forward = ForwardFromYaw(SIGN_YAW);
-            glm::mat4 m(1.0f);
-            m = glm::translate(m, SIGN_POS + forward * SIGN_Z_BIAS);
-            m = glm::rotate(m, glm::radians(SIGN_YAW), glm::vec3(0, 1, 0));
-            // flip opcional en X si lo ves espejeado
-            float sx = SIGN_FLIP_X ? -SIGN_SIZE.x : SIGN_SIZE.x;
-            m = glm::scale(m, glm::vec3(sx, SIGN_SIZE.y, 1.0f));
-            glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texSign);
-            glBindVertexArray(quadVAO);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-            glBindVertexArray(0);
-            glBindTexture(GL_TEXTURE_2D, 0);
-
-            glDisable(GL_BLEND);
-        }
 
 
 
         //Sala 3
 
 
-        // ====== FLECHAS SOBRE EL PISO (posición separada) ======
-        {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            quadShader.Use();
-            GLint qModel = glGetUniformLocation(quadShader.Program, "model");
-            GLint qView = glGetUniformLocation(quadShader.Program, "view");
-            GLint qProj = glGetUniformLocation(quadShader.Program, "projection");
-            GLint qTex = glGetUniformLocation(quadShader.Program, "uTex");
-            GLint qTile = glGetUniformLocation(quadShader.Program, "uTiling");
-            glUniformMatrix4fv(qView, 1, GL_FALSE, glm::value_ptr(view));
-            glUniformMatrix4fv(qProj, 1, GL_FALSE, glm::value_ptr(projection));
-            glUniform1i(qTex, 0);
-            glUniform2f(qTile, ARROWS_TILING.x, ARROWS_TILING.y);
-
-            glm::mat4 m(1.0f);
-            m = glm::translate(m, ARROWS_POS);
-            m = glm::rotate(m, glm::radians(-90.0f), glm::vec3(1, 0, 0));
-            m = glm::rotate(m, glm::radians(ARROWS_YAW), glm::vec3(0, 0, 1));
-            glUniformMatrix4fv(qModel, 1, GL_FALSE, glm::value_ptr(m));
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texArrows);
-            glBindVertexArray(quadVAO);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-            glBindVertexArray(0);
-            glBindTexture(GL_TEXTURE_2D, 0);
-
-            glDisable(GL_BLEND);
-        }
 
         // ====== VR HEADSET (posición separada) ======
         {
@@ -839,6 +780,14 @@ int main() {
             m = glm::scale(m, glm::vec3(VR_HEADSET_SCL));
             glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
             vr.Draw(lightingShader);
+        }
+        //Cubo base 4
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-32.0f, FLOOR_Y + LIFT+.8, -13.0f));
+            m = glm::scale(m, glm::vec3(0.9f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            CuboBase4.Draw(lightingShader);
         }
 
         // ====== Guerrero skinned ======
@@ -857,8 +806,8 @@ int main() {
                 glUniformMatrix4fv(bonesLoc, (GLsizei)bones.size(), GL_FALSE, &bones[0][0][0]);
 
             glm::mat4 m(1.0f);
-            m = glm::translate(m, glm::vec3(-25.0f, FLOOR_Y + LIFT, 2.5f));
-            m = glm::rotate(m, glm::radians(45.0f), glm::vec3(0, 1, 0));
+            m = glm::translate(m, glm::vec3(-22.0f, FLOOR_Y + LIFT, 8.5f));
+            m = glm::rotate(m, glm::radians(180.0f), glm::vec3(0, 1, 0));
             m = glm::scale(m, glm::vec3(0.02f));
             glUniformMatrix4fv(sModelLoc, 1, GL_FALSE, glm::value_ptr(m));
             warrior.Draw(skinnedShader);
@@ -876,8 +825,8 @@ int main() {
                 glUniformMatrix4fv(bonesLoc, (GLsizei)bones.size(), GL_FALSE, &bones[0][0][0]);
 
             glm::mat4 m(1.0f);
-            m = glm::translate(m, glm::vec3(-25.0f, FLOOR_Y + LIFT, 13.0f));
-            m = glm::rotate(m, glm::radians(45.0f), glm::vec3(0, 1, 0));
+            m = glm::translate(m, glm::vec3(-25.0f, FLOOR_Y + LIFT, 0.5f));
+            m = glm::rotate(m, glm::radians(360.0f), glm::vec3(0, 1, 0));
             m = glm::scale(m, glm::vec3(0.02f));
             glUniformMatrix4fv(sModelLoc, 1, GL_FALSE, glm::value_ptr(m));
             yoda.Draw(skinnedShader);
@@ -895,20 +844,93 @@ int main() {
                 glUniformMatrix4fv(bonesLoc, (GLsizei)bones.size(), GL_FALSE, &bones[0][0][0]);
 
             glm::mat4 m(1.0f);
-            m = glm::translate(m, glm::vec3(-25.0f, FLOOR_Y + LIFT, 17.0f));
-            m = glm::rotate(m, glm::radians(45.0f), glm::vec3(0, 1, 0));
+            m = glm::translate(m, glm::vec3(-25.0f, FLOOR_Y + LIFT, 21.0f));
+            m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, 0));
             m = glm::scale(m, glm::vec3(0.02f));
             glUniformMatrix4fv(sModelLoc, 1, GL_FALSE, glm::value_ptr(m));
            truper.Draw(skinnedShader);
         }
 
+
+        // ====== Astro animacion ======
+        skinnedShader.Use();
+
+        {
+            double t = glfwGetTime() - t0;
+            astro.UpdateAnimation(t);
+            std::vector<glm::mat4> bones; astro.GetBoneMatrices(bones, 100);
+            GLint bonesLoc = glGetUniformLocation(skinnedShader.Program, "bones");
+            if (bonesLoc >= 0 && !bones.empty())
+                glUniformMatrix4fv(bonesLoc, (GLsizei)bones.size(), GL_FALSE, &bones[0][0][0]);
+
+            glm::mat4 m(1.0f);
+            m = glm::translate(m, glm::vec3(-25.0f, FLOOR_Y + LIFT, 12.0f));
+            m = glm::rotate(m, glm::radians(360.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(0.02f));
+            glUniformMatrix4fv(sModelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            astro.Draw(skinnedShader);
+        }
+
+        // ====== Kratos animacion ======
+        skinnedShader.Use();
+
+        {
+            double t = glfwGetTime() - t0;
+            kratos.UpdateAnimation(t);
+            std::vector<glm::mat4> bones; kratos.GetBoneMatrices(bones, 100);
+            GLint bonesLoc = glGetUniformLocation(skinnedShader.Program, "bones");
+            if (bonesLoc >= 0 && !bones.empty())
+                glUniformMatrix4fv(bonesLoc, (GLsizei)bones.size(), GL_FALSE, &bones[0][0][0]);
+
+            glm::mat4 m(1.0f);
+            m = glm::translate(m, glm::vec3(-25.0f, FLOOR_Y + LIFT-.25, -12.0f));
+            m = glm::rotate(m, glm::radians(360.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(0.025f));
+            glUniformMatrix4fv(sModelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            kratos.Draw(skinnedShader);
+        }
+
+        // ====== link animacion ======
+        skinnedShader.Use();
+
+        {
+            double t = glfwGetTime() - t0;
+            link.UpdateAnimation(t);
+            std::vector<glm::mat4> bones; link.GetBoneMatrices(bones, 100);
+            GLint bonesLoc = glGetUniformLocation(skinnedShader.Program, "bones");
+            if (bonesLoc >= 0 && !bones.empty())
+                glUniformMatrix4fv(bonesLoc, (GLsizei)bones.size(), GL_FALSE, &bones[0][0][0]);
+
+            glm::mat4 m(1.0f);
+            m = glm::translate(m, glm::vec3(-25.0f, FLOOR_Y + LIFT-.38, -5.0f));
+            m = glm::rotate(m, glm::radians(180.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(0.025f));
+            glUniformMatrix4fv(sModelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            link.Draw(skinnedShader);
+        }
+
+
+
+
+
+
+
         // ====== game (prop de sala) — CORREGIDO translate ======
         {
             lightingShader.Use(); GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model"); glm::mat4 m(1.0f); // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso 
-            m = glm::translate(m, glm::vec3(-20.0f, FLOOR_Y + LIFT, 2.5f)); 
-            m = glm::rotate(m, glm::radians(VR_HEADSET_YAW), glm::vec3(0, 1, 0)); 
-            m = glm::scale(m, glm::vec3(2.5f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m)); 
+            m = glm::translate(m, glm::vec3(-18.0f, 4.2, 2.5f)); 
+            m = glm::rotate(m, glm::radians(270.0f), glm::vec3(0, 1, 0)); 
+            m = glm::scale(m, glm::vec3(1.5f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m)); 
             game.Draw(lightingShader); 
+        }
+
+        //Cubo base 4
+        {
+            glm::mat4 m(1);
+            m = glm::translate(m, glm::vec3(-18.0f, FLOOR_Y + LIFT+.8, 2.5f));
+            m = glm::scale(m, glm::vec3(0.9f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
+            CuboBase5.Draw(lightingShader);
         }
 
         {
@@ -921,7 +943,7 @@ int main() {
 
         {
             lightingShader.Use(); GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model"); glm::mat4 m(1.0f); // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso 
-            m = glm::translate(m, glm::vec3(-20.0f, 5.0f, 13.0f));
+            m = glm::translate(m, glm::vec3(-20.0f, FLOOR_Y + LIFT+1.8, 13.0f));
             m = glm::rotate(m, glm::radians(360.0f), glm::vec3(0, 1, 0));
             m = glm::scale(m, glm::vec3(2.0f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
             controller.Draw(lightingShader);
@@ -929,18 +951,40 @@ int main() {
 
         {
             lightingShader.Use(); GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model"); glm::mat4 m(1.0f); // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso 
-            m = glm::translate(m, glm::vec3(-30.0f, 5.0f, 13.0f));
-            m = glm::rotate(m, glm::radians(360.0f), glm::vec3(0, 1, 0));
+            m = glm::translate(m, glm::vec3(-35.0f, 6.0f, 17.0f));
+            m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, 0));
             m = glm::scale(m, glm::vec3(2.0f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
             wall.Draw(lightingShader);
         }
 
+        //Lampara 1
+
         {
             lightingShader.Use(); GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model"); glm::mat4 m(1.0f); // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso 
-            m = glm::translate(m, glm::vec3(-20.0f, 7.0f, 13.0f));
+            m = glm::translate(m, glm::vec3(-25.0f, 8.3f, 22.0f));
             m = glm::rotate(m, glm::radians(360.0f), glm::vec3(0, 1, 0));
             m = glm::scale(m, glm::vec3(2.0f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
             ceiling.Draw(lightingShader);
+        }
+
+        //Lampara 2
+
+        {
+            lightingShader.Use(); GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model"); glm::mat4 m(1.0f); // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso 
+            m = glm::translate(m, glm::vec3(-25.0f, 8.3f, 9.0f));
+            m = glm::rotate(m, glm::radians(360.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(2.0f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
+            ceiling2.Draw(lightingShader);
+        }
+
+        //Lampara 3
+
+        {
+            lightingShader.Use(); GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model"); glm::mat4 m(1.0f); // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso 
+            m = glm::translate(m, glm::vec3(-25.0f, 8.3f, -4.0f));
+            m = glm::rotate(m, glm::radians(360.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(2.0f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
+            ceiling3.Draw(lightingShader);
         }
 
 
