@@ -357,7 +357,8 @@ int main() {
 	Model controller((char*)"Models/sala3/Game_Controllers_Disp_1110071455_texture.obj");
 	Model yoda((char*)"Models/sala3/Animation_Alert_withSkin.fbx");
 	Model truper((char*)"Models/sala3/Animation_Forward_Roll_and_Fire_withSkin.fbx");
-
+	Model wall((char*)"Models/sala3/wall_acoustic_pane_1112003419_texture.obj");
+    Model ceiling((char*)"Models/sala3/ceiling_track_light__1112003755_texture.obj");
 
     // VAO cubo debug
     glGenVertexArrays(1, &lampVAO);
@@ -926,6 +927,21 @@ int main() {
             controller.Draw(lightingShader);
         }
 
+        {
+            lightingShader.Use(); GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model"); glm::mat4 m(1.0f); // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso 
+            m = glm::translate(m, glm::vec3(-30.0f, 5.0f, 13.0f));
+            m = glm::rotate(m, glm::radians(360.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(2.0f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
+            wall.Draw(lightingShader);
+        }
+
+        {
+            lightingShader.Use(); GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model"); glm::mat4 m(1.0f); // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso 
+            m = glm::translate(m, glm::vec3(-20.0f, 7.0f, 13.0f));
+            m = glm::rotate(m, glm::radians(360.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(2.0f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
+            ceiling.Draw(lightingShader);
+        }
 
 
 
