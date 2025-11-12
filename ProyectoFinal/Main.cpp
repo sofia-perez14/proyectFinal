@@ -276,7 +276,8 @@ float skyboxVertices[] = {
 float rotBall = 0.0f; bool AnimBall = false; bool AnimDog = false; float rotDog = 0.0f;
 int dogAnim = 0; float FLegs = 0, RLegs = 0, head = 0, tail = 0; glm::vec3 dogPos(0); float dogRot = 0; bool step = false; float pikachuTime = 0.0f;
 bool pikachuAnim = false; float butterflyTime = 0.0f;
-bool butterflyAnim = false; float consoleRotation = 0.0f;
+bool butterflyAnim = false; float crashTime = 0.0f;
+bool crashAnim = false; float consoleRotation = 0.0f;
 float limite = 2.2f;
 GLfloat deltaTime = 0.0f, lastFrame = 0.0f;
 
@@ -382,6 +383,7 @@ int main() {
     Model CuboBase1((char*)"Models/Sala2/Cubo/_1108054346_texture.obj");
     Model CuboBase2((char*)"Models/Sala2/Cubo/_1108054346_texture.obj");
     Model CuboBase3((char*)"Models/Sala2/Cubo/_1108054346_texture.obj");
+    Model crash((char*)"Models/Sala2/CrashBandicoot/Animation_Crawl_and_Look_Back_withSkin.fbx");  // Tu archivo FBX de Crash
     Model xboxSX((char*)"Models/Sala2/XboxSeriesX/_1106040925_texture.obj");
     Model Nswitch((char*)"Models/Sala2/nintendo-switch/_1106051703_texture.obj");
     Model PS5((char*)"Models/Sala2/ps5/PS5/_1112073936_texture.obj");
@@ -568,9 +570,8 @@ int main() {
         GLint projLoc = glGetUniformLocation(lightingShader.Program, "projection");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
         // ===== CONFIGURAR SPOTLIGHTS =====
-        // Spotlight 1: Xbox (VERDE)
+// Spotlight 0: Xbox (VERDE)
         {
             glm::vec3 xboxLogoPos = glm::vec3(2.20f, FLOOR_Y + LIFT + 3.5f, 3.0f);
             glm::vec3 xboxConsolePos = glm::vec3(5.0f, FLOOR_Y + LIFT + 1.30f, 3.0f);
@@ -581,21 +582,21 @@ int main() {
             glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[0].direction"),
                 spotDir.x, spotDir.y, spotDir.z);
             glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[0].ambient"),
-                0.05f, 0.2f, 0.05f);
+                0.1f, 0.3f, 0.1f);
             glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[0].diffuse"),
-                0.2f, 1.0f, 0.2f);
+                0.5f, 2.0f, 0.5f);
             glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[0].specular"),
-                0.1f, 0.5f, 0.1f);
+                0.2f, 0.8f, 0.2f);
             glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[0].cutOff"),
-                glm::cos(glm::radians(12.5f)));
+                glm::cos(glm::radians(15.5f)));
             glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[0].outerCutOff"),
-                glm::cos(glm::radians(17.5f)));
+                glm::cos(glm::radians(20.5f)));
             glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[0].constant"), 1.0f);
-            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[0].linear"), 0.09f);
-            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[0].quadratic"), 0.032f);
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[0].linear"), 0.045f);
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[0].quadratic"), 0.0075f);
         }
 
-        // Spotlight 2: Nintendo (ROJO)
+        // Spotlight 1: Nintendo (ROJO)
         {
             glm::vec3 nintendoLogoPos = glm::vec3(2.20f, FLOOR_Y + LIFT + 3.5f, 15.0f);
             glm::vec3 nintendoConsolePos = glm::vec3(5.0f, FLOOR_Y + LIFT + 1.10f, 15.0f);
@@ -606,21 +607,21 @@ int main() {
             glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[1].direction"),
                 spotDir.x, spotDir.y, spotDir.z);
             glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[1].ambient"),
-                0.2f, 0.05f, 0.05f);
+                0.3f, 0.1f, 0.1f);
             glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[1].diffuse"),
-                1.0f, 0.2f, 0.2f);
+                2.0f, 0.5f, 0.5f);
             glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[1].specular"),
-                0.5f, 0.1f, 0.1f);
+                0.8f, 0.2f, 0.2f);
             glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[1].cutOff"),
-                glm::cos(glm::radians(12.5f)));
+                glm::cos(glm::radians(15.5f)));
             glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[1].outerCutOff"),
-                glm::cos(glm::radians(17.5f)));
+                glm::cos(glm::radians(20.5f)));
             glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[1].constant"), 1.0f);
-            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[1].linear"), 0.09f);
-            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[1].quadratic"), 0.032f);
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[1].linear"), 0.045f);
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[1].quadratic"), 0.0075f);
         }
 
-        // Spotlight 3: PS5 (AZUL)
+        // Spotlight 2: PS5 (AZUL)
         {
             glm::vec3 ps5LogoPos = glm::vec3(2.20f, FLOOR_Y + LIFT + 3.5f, 26.0f);
             glm::vec3 ps5ConsolePos = glm::vec3(5.0f, FLOOR_Y + LIFT + 0.90f, 26.0f);
@@ -631,21 +632,21 @@ int main() {
             glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[2].direction"),
                 spotDir.x, spotDir.y, spotDir.z);
             glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[2].ambient"),
-                0.05f, 0.05f, 0.2f);
+                0.1f, 0.1f, 0.3f);
             glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[2].diffuse"),
-                0.2f, 0.4f, 1.0f);
+                0.5f, 0.8f, 2.5f);
             glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLights[2].specular"),
-                0.1f, 0.2f, 0.5f);
+                0.2f, 0.4f, 1.0f);
             glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[2].cutOff"),
-                glm::cos(glm::radians(12.5f)));
+                glm::cos(glm::radians(15.5f)));
             glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[2].outerCutOff"),
-                glm::cos(glm::radians(17.5f)));
+                glm::cos(glm::radians(20.5f)));
             glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[2].constant"), 1.0f);
-            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[2].linear"), 0.09f);
-            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[2].quadratic"), 0.032f);
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[2].linear"), 0.045f);
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "spotLights[2].quadratic"), 0.0075f);
         }
         // ===== FIN SPOTLIGHTS =====
-                
+
         // Escenario
         {
             glm::mat4 m(1);
@@ -865,33 +866,63 @@ int main() {
 
 
 
-        // XboxLogo
+        // XboxLogo - CON EMISIÓN VERDE
         {
+            // Activar emisión verde brillante
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "emissiveColor"),
+                0.2f, 1.0f, 0.2f); // Verde brillante
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "emissiveStrength"),
+                3.0f); // Intensidad alta
+
             glm::mat4 m(1);
             m = glm::translate(m, glm::vec3(2.20f, FLOOR_Y + LIFT + 3.5f, 3.0f));
             m = glm::scale(m, glm::vec3(1.5f));
             m = glm::rotate(m, glm::radians(-90.0f), glm::vec3(0, 1, 0));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             XboxLogo.Draw(lightingShader);
+
+            // Desactivar emisión después de dibujar
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "emissiveStrength"), 0.0f);
         }
-        // NswitchLogo
+
+        // NswitchLogo - CON EMISIÓN ROJA
         {
+            // Activar emisión roja brillante
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "emissiveColor"),
+                1.0f, 0.2f, 0.2f); // Rojo brillante
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "emissiveStrength"),
+                3.0f); // Intensidad alta
+
             glm::mat4 m(1);
-            m = glm::translate(m, glm::vec3(2.20f, FLOOR_Y + LIFT + 3.5f, 15.0f));
-            m = glm::scale(m, glm::vec3(1.5f));
+            m = glm::translate(m, glm::vec3(2.20f, FLOOR_Y + LIFT + 3.5f, 14.8f));
+            m = glm::scale(m, glm::vec3(3.0f));
             m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, 0));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             NswitchLogo.Draw(lightingShader);
+
+            // Desactivar emisión después de dibujar
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "emissiveStrength"), 0.0f);
         }
-        // PS5Logo
+
+        // PS5Logo - CON EMISIÓN AZUL
         {
+            // Activar emisión azul brillante
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "emissiveColor"),
+                0.3f, 0.5f, 1.5f); // Azul brillante
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "emissiveStrength"),
+                1.0f); // Intensidad alta
+
             glm::mat4 m(1);
             m = glm::translate(m, glm::vec3(2.20f, FLOOR_Y + LIFT + 3.5f, 26.0f));
             m = glm::scale(m, glm::vec3(1.5f));
             m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, 0));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(m));
             PS5Logo.Draw(lightingShader);
+
+            // Desactivar emisión después de dibujar
+            glUniform1f(glGetUniformLocation(lightingShader.Program, "emissiveStrength"), 0.0f);
         }
+
 
         //termina sala 2
 
@@ -1246,6 +1277,66 @@ int main() {
         }
 
 
+
+
+        // ===== ANIMACIÓN CRASH BANDICOOT - RECTÁNGULO =====
+        if (crashAnim) {
+            // Puntos del rectángulo en orden correcto
+            glm::vec3 corners[4] = {
+                glm::vec3(7.5f, FLOOR_Y + LIFT, 15.0f),    // Esquina 1
+                glm::vec3(12.15f, FLOOR_Y + LIFT, 15.0f),  // Esquina 2
+                glm::vec3(12.15f, FLOOR_Y + LIFT, 26.0f),  // Esquina 3
+                glm::vec3(7.5f, FLOOR_Y + LIFT, 26.0f)     // Esquina 4
+            };
+
+            // Duración total del circuito (20 segundos)
+            float totalDuration = 20.0f;
+            float segmentDuration = totalDuration / 4.0f; // 5 segundos por lado
+
+            // Normalizar tiempo para loop continuo
+            float loopTime = fmod(crashTime, totalDuration);
+
+            // Calcular en qué segmento estamos (0, 1, 2, 3)
+            int segment = int(loopTime / segmentDuration);
+            if (segment > 3) segment = 3; // Seguridad
+
+            // Tiempo local dentro del segmento actual (0.0 a 1.0)
+            float localTime = (loopTime - (segment * segmentDuration)) / segmentDuration;
+
+            // Siguiente esquina (con wrap-around)
+            int nextCorner = (segment + 1) % 4;
+
+            // Interpolar posición
+            glm::vec3 crashPos = corners[segment] + (corners[nextCorner] - corners[segment]) * localTime;
+
+            // Calcular dirección y ángulo de rotación
+            glm::vec3 direction = glm::normalize(corners[nextCorner] - corners[segment]);
+            float crashYaw = atan2(direction.x, direction.z);
+
+            // Renderizar Crash
+            skinnedShader.Use();
+            GLint sModelLocCrash = glGetUniformLocation(skinnedShader.Program, "model");
+
+            // Actualizar animación del FBX
+            double t = glfwGetTime();
+            crash.UpdateAnimation(t);
+            std::vector<glm::mat4> bones;
+            crash.GetBoneMatrices(bones, 100);
+            GLint bonesLoc = glGetUniformLocation(skinnedShader.Program, "bones");
+            if (bonesLoc >= 0 && !bones.empty()) {
+                glUniformMatrix4fv(bonesLoc, GLsizei(bones.size()), GL_FALSE, &bones[0][0][0]);
+            }
+
+            // Matriz de transformación
+            glm::mat4 mCrash(1.0f);
+            mCrash = glm::translate(mCrash, crashPos);
+            mCrash = glm::rotate(mCrash, crashYaw, glm::vec3(0, 1, 0));
+            mCrash = glm::scale(mCrash, glm::vec3(0.02f));
+            glUniformMatrix4fv(sModelLocCrash, 1, GL_FALSE, glm::value_ptr(mCrash));
+            crash.Draw(skinnedShader);
+        }
+
+
         // ====== Cubo lámpara (debug) ======
         lampShader.Use();
         GLint ml = glGetUniformLocation(lampShader.Program, "model");
@@ -1308,7 +1399,18 @@ void KeyCallback(GLFWwindow* window, int key, int, int action, int)
                 if (pikachuAnim) pikachuTime = 0.0f;
                 if (butterflyAnim) butterflyTime = 0.0f;
                 std::cout << "Animaciones: " << (pikachuAnim ? "ON" : "OFF") << std::endl;
+
+
             }
+
+            // Activar animación de Crash con tecla C
+            if (key == GLFW_KEY_C) {
+                crashAnim = !crashAnim;
+                if (crashAnim) crashTime = 0.0f;
+                std::cout << "Crash animacion: " << (crashAnim ? "ON" : "OFF") << std::endl;
+            }
+
+
 
         }
         else if (action == GLFW_RELEASE) {
@@ -1342,6 +1444,12 @@ void Animation() {
         butterflyTime += 0.016f; // Velocidad de animación
         if (butterflyTime > 8.0f) {
             butterflyTime = 0.0f; // Loop de 8 segundos
+        }
+
+        // Animación de Crash Bandicoot
+        if (crashAnim) {
+            crashTime += 0.016f; // 60fps
+ 
         }
     }
 
