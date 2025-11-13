@@ -365,6 +365,8 @@ int main() {
 
     //Modelo de la galeria
     Model escenario((char*)"Models/wip-gallery-v0003/source/GalleryModel_v0003/GalleryModel_v0007.obj");
+	Model halcon((char*)"Models/sala3/Spaceship_Adventure_1113032035_texture.obj");
+	Model nave((char*)"Models/sala3/Spaceship_Adventures_1113032023_texture.obj");
 
     //Sala 1
     Model arc1((char*)"Models/arcade_machine.obj");
@@ -1169,6 +1171,27 @@ int main() {
             m = glm::scale(m, glm::vec3(2.0f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
             ceiling3.Draw(lightingShader);
         }
+
+        //Halcon milenario 
+        {
+            lightingShader.Use(); GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model"); glm::mat4 m(1.0f); // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso 
+            m = glm::translate(m, glm::vec3(40.0f, 4.2, -15.0f));
+            m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, .5));
+            m = glm::scale(m, glm::vec3(5.0f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
+            halcon.Draw(lightingShader);
+        }
+
+
+		//Nave Rick y Morty 
+        {
+            lightingShader.Use(); GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model"); glm::mat4 m(1.0f); // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso 
+            m = glm::translate(m, glm::vec3(40.0f, 4.2, 20.0f));
+            m = glm::rotate(m, glm::radians(270.0f), glm::vec3(0, 1, 0));
+            m = glm::scale(m, glm::vec3(3.5f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
+            nave.Draw(lightingShader);
+        }
+
+
 
 
         // ===== ANIMACIÓN PIKACHU POR KEYFRAMES =====
