@@ -1177,7 +1177,7 @@ int main() {
             lightingShader.Use(); GLint modelLocVR = glGetUniformLocation(lightingShader.Program, "model"); glm::mat4 m(1.0f); // *** FIX: pasar matriz base y vec3; usar FLOOR_Y + LIFT para asentar en el piso 
             m = glm::translate(m, glm::vec3(40.0f, 4.2, -15.0f));
             m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, .5));
-            m = glm::scale(m, glm::vec3(5.0f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
+            m = glm::scale(m, glm::vec3(6.0f)); glUniformMatrix4fv(modelLocVR, 1, GL_FALSE, glm::value_ptr(m));
             halcon.Draw(lightingShader);
         }
 
